@@ -41,6 +41,12 @@ const LunarLanderConstants = {
   MODEL_MIN_Y: 0, // m — bottom of the visible world (terrain bodies fill down to here)
   MODEL_MAX_ALTITUDE: 200, // m — top of the visible world (absolute elevation)
 
+  // ── Camera (zoom toward the landing site as the lander descends) ─────────────
+  // Like the Flash original, the view stays wide while the lander is high, then
+  // smoothly zooms in on the spot directly below it as the clearance drops.
+  ZOOM_START_ALTITUDE: 70, // m — at or above this clearance the view is unzoomed (z = 1)
+  ZOOM_MAX: 3, // × — zoom factor at touchdown (altitude 0)
+
   // ── Initial lander state ────────────────────────────────────────────────────
   INITIAL_X: 30, // m — horizontal start (over a wide, easy pad on the left)
   INITIAL_ALTITUDE: 120, // m — start clearance above the local surface

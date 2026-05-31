@@ -7,9 +7,10 @@
  * Overlays and sound are layered on in later steps.
  */
 import { DerivedProperty } from "scenerystack/axon";
-import { Bounds2, Vector2 } from "scenerystack/dot";
+import { Bounds2, Matrix3, Vector2 } from "scenerystack/dot";
+import { Shape } from "scenerystack/kite";
 import { ModelViewTransform2 } from "scenerystack/phetcommon";
-import { KeyboardListener } from "scenerystack/scenery";
+import { KeyboardListener, Node } from "scenerystack/scenery";
 import { PhetFont, ResetAllButton } from "scenerystack/scenery-phet";
 import type { Dialog, ScreenViewOptions } from "scenerystack/sim";
 import { ScreenView } from "scenerystack/sim";
@@ -33,12 +34,16 @@ import { VectorsNode } from "./VectorsNode.js";
 
 type LunarLanderScreenViewOptions = ScreenViewOptions & { tandem: Tandem };
 
-const { SCREEN_VIEW_MARGIN, CONTROL_PANEL_WIDTH, MODEL_MIN_Y, MODEL_MAX_ALTITUDE } = LunarLanderConstants;
+const { SCREEN_VIEW_MARGIN, CONTROL_PANEL_WIDTH, MODEL_MIN_Y, MODEL_MAX_ALTITUDE, ZOOM_START_ALTITUDE, ZOOM_MAX } =
+  LunarLanderConstants;
 
 export class LunarLanderScreenView extends ScreenView {
   protected readonly modelViewTransform: ModelViewTransform2;
   protected readonly playAreaViewBounds: Bounds2;
   protected readonly model: LunarLanderModel;
+  // Holds the world-space scene (terrain, vectors, lander, explosion); its matrix
+  // is the camera that zooms toward the landing site as the lander descends.
+  private readonly worldNode: Node;
   private readonly landerNode: LanderNode;
   private readonly explosionNode: ExplosionNode;
   private readonly helpDialog: Dialog;
@@ -75,6 +80,16 @@ export class LunarLanderScreenView extends ScreenView {
     const vectorsNode = new VectorsNode(model, this.modelViewTransform);
     this.landerNode = new LanderNode(model, this.modelViewTransform);
     this.explosionNode = new ExplosionNode(model, this.modelViewTransform);
+
+    // World layer carries everything anchored to model space; the camera matrix
+    // applied to it zooms in on the landing site. The camera node clips to the
+    // play area so the zoomed world never spills under the panels or off the top.
+    this.worldNode = new Node({ children: [terrainNode, vectorsNode, this.landerNode, this.explosionNode] });
+    const cameraNode = new Node({
+      children: [this.worldNode],
+      clipArea: Shape.bounds(this.playAreaViewBounds),
+    });
+    model.lander.positionProperty.link(() => this.updateCamera());
 
     const messageNode = new MessageNode(
       model,
@@ -138,10 +153,7 @@ export class LunarLanderScreenView extends ScreenView {
 
     this.children = [
       starfield,
-      terrainNode,
-      vectorsNode,
-      this.landerNode,
-      this.explosionNode,
+      cameraNode,
       messageNode,
       controlPanel,
       scoreReadout,
@@ -189,6 +201,30 @@ export class LunarLanderScreenView extends ScreenView {
         }
       },
     });
+  }
+
+  /**
+   * Reposition the camera (the worldNode matrix) so the view zooms toward the
+   * spot directly beneath the lander as its clearance drops — wide while high,
+   * closing in on the landing site near touchdown, like the Flash original.
+   *
+   * The transform is a pure scale by z about the focal point f (the surface
+   * point under the lander, in base-view pixels): screen = f + z·(v − f). At
+   * z = 1 this is the identity, so the wide view is recovered exactly up high.
+   */
+  private updateCamera(): void {
+    const position = this.model.lander.positionProperty.value;
+    const surfaceY = this.model.terrain.surfaceY(position.x);
+    const altitude = Math.max(0, position.y - surfaceY);
+
+    // Smoothstep the zoom from 1 (at/above ZOOM_START_ALTITUDE) to ZOOM_MAX (touchdown).
+    const t = Math.max(0, Math.min(1, (ZOOM_START_ALTITUDE - altitude) / ZOOM_START_ALTITUDE));
+    const eased = t * t * (3 - 2 * t);
+    const z = 1 + eased * (ZOOM_MAX - 1);
+
+    const f = this.modelViewTransform.modelToViewPosition(new Vector2(position.x, surfaceY));
+    // Scale about f: [ z 0 f.x(1−z) ; 0 z f.y(1−z) ; 0 0 1 ].
+    this.worldNode.matrix = Matrix3.rowMajor(z, 0, f.x * (1 - z), 0, z, f.y * (1 - z), 0, 0, 1);
   }
 
   public reset(): void {
