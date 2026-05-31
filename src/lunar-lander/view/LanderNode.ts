@@ -62,11 +62,15 @@ export class LanderNode extends Node {
       graphic.rotation = angle;
     });
 
-    // Flame length tracks the effective thrust fraction.
+    // Flame length tracks the effective thrust fraction. Skip the scale update
+    // when there is no flame: a zero y-scale produces a degenerate
+    // (non-invertible) transform matrix, and the flame is hidden anyway.
     Multilink.multilink([model.lander.thrustProperty, model.lander.remainingFuelProperty], (thrust, fuel) => {
       const fraction = fuel > 0 ? thrust / MAX_THRUST : 0;
       flame.visible = fraction > 0.01;
-      flame.setScaleMagnitude(1, fraction);
+      if (flame.visible) {
+        flame.setScaleMagnitude(1, fraction);
+      }
     });
 
     // Hide the lander once it has crash-landed (the explosion takes over).
