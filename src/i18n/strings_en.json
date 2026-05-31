@@ -1,0 +1,55 @@
+{
+  "title": "Lunar Lander",
+  "screens": {
+    "lunarLander": "Lunar Lander"
+  },
+  "readouts": {
+    "altitude": "altitude(m)",
+    "range": "range(m)",
+    "vX": "v_x(m/s)",
+    "vY": "v_y(m/s)",
+    "thrust": "thrust(N)",
+    "fuel": "fuel(kg)"
+  },
+  "fuelGauge": {
+    "full": "F",
+    "empty": "E"
+  },
+  "controls": {
+    "sound": "Sound",
+    "vectors": "Vectors",
+    "reset": "Reset",
+    "help": "Help/Pause",
+    "unpause": "Unpause",
+    "start": "Start",
+    "paused": "Paused",
+    "moreThrust": "More Thrust",
+    "lessThrust": "Less Thrust",
+    "tiltLeft": "Tilt Left",
+    "tiltRight": "Tilt Right",
+    "fullThrust": "Full Thrust"
+  },
+  "score": {
+    "scoreColon": "score:",
+    "softLandingsColon": "soft landings:",
+    "hardLandingsColon": "hard landings:"
+  },
+  "messages": {
+    "landingSpeedEq": "Landing speed = ",
+    "softLanding": "Soft Landing.",
+    "hardLanding": "Hard Landing.",
+    "crash1": "Crash landing, legs damaged.",
+    "crash2": "Crash landing, crew killed.",
+    "hitBoulder": "Hit boulder. Leg damaged. Fuel lost."
+  },
+  "help": {
+    "title": "Keyboard Controls",
+    "instructions": "How many flat zones can you touch before the fuel is out? Extra points for soft landings (v < 2 m/s). Game over if you hit a boulder or crash land (v > 6 m/s).",
+    "controlLander": "Control the lander with the keyboard.",
+    "upDownThrust": "Up / Down arrows: more / less thrust",
+    "leftRightTilt": "Left / Right arrows: tilt the lander",
+    "spaceFullThrust": "Space bar: toggle full thrust",
+    "rReset": "R: reset",
+    "pPause": "P: pause"
+  }
+}

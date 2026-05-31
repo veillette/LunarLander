@@ -1,0 +1,55 @@
+{
+  "title": "Alunisseur",
+  "screens": {
+    "lunarLander": "Alunisseur"
+  },
+  "readouts": {
+    "altitude": "altitude (m)",
+    "range": "portée (m)",
+    "vX": "v_x (m/s)",
+    "vY": "v_y (m/s)",
+    "thrust": "poussée (N)",
+    "fuel": "carburant (kg)"
+  },
+  "fuelGauge": {
+    "full": "P",
+    "empty": "V"
+  },
+  "controls": {
+    "sound": "Son",
+    "vectors": "Vecteurs",
+    "reset": "RAZ",
+    "help": "Aide/Pause",
+    "unpause": "Reprendre",
+    "start": "Départ",
+    "paused": "En pause",
+    "moreThrust": "Plus de poussée",
+    "lessThrust": "Moins de poussée",
+    "tiltLeft": "Incliner à gauche",
+    "tiltRight": "Incliner à droite",
+    "fullThrust": "Poussée maximale"
+  },
+  "score": {
+    "scoreColon": "Score :",
+    "softLandingsColon": "alunissages en douceur :",
+    "hardLandingsColon": "alunissages éprouvants :"
+  },
+  "messages": {
+    "landingSpeedEq": "Vitesse d'alunissage = ",
+    "softLanding": "Alunissage en douceur.",
+    "hardLanding": "Alunissage éprouvant.",
+    "crash1": "Petit crash, pieds cassés.",
+    "crash2": "Gros crash, équipage tué.",
+    "hitBoulder": "Choc contre un rocher. Pieds cassés. Carburant perdu."
+  },
+  "help": {
+    "title": "Touches utiles",
+    "instructions": "Combien de zones plates toucherez-vous avant la panne sèche ? Points bonus pour un alunissage en douceur (v < 2 m/s). Fin de partie si choc contre un rocher ou alunissage (v > 6 m/s).",
+    "controlLander": "Contrôle du vaisseau au clavier.",
+    "upDownThrust": "Flèches Haut / Bas : plus / moins de poussée",
+    "leftRightTilt": "Flèches Gauche / Droite : incliner le vaisseau",
+    "spaceFullThrust": "Barre d'espace : poussée maximale",
+    "rReset": "R : réinitialiser",
+    "pPause": "P : pause"
+  }
+}
