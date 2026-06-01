@@ -2,12 +2,11 @@
  * ControlPanel.ts
  *
  * The right-hand instrument panel: an attitude indicator, the numeric readouts,
- * the fuel gauge, and the Sound / Vectors checkboxes.
+ * the fuel gauge, and the Vectors / Sound visibility toggles (icon buttons).
  */
-import type { TReadOnlyProperty } from "scenerystack/axon";
-import { type Node, Text, VBox } from "scenerystack/scenery";
-import { PhetFont } from "scenerystack/scenery-phet";
-import { Panel, VerticalCheckboxGroup } from "scenerystack/sun";
+import { HBox, VBox } from "scenerystack/scenery";
+import { EyeToggleButton, SoundToggleButton } from "scenerystack/scenery-phet";
+import { Panel } from "scenerystack/sun";
 import { StringManager } from "../../i18n/StringManager.js";
 import LunarLanderColors from "../../LunarLanderColors.js";
 import type { LunarLanderModel } from "../model/LunarLanderModel.js";
@@ -15,29 +14,30 @@ import { AttitudeIndicatorNode } from "./AttitudeIndicatorNode.js";
 import { FuelGaugeNode } from "./FuelGaugeNode.js";
 import { ReadoutsNode } from "./ReadoutsNode.js";
 
-const LABEL_FONT = new PhetFont(14);
-
-function labelText(stringProperty: TReadOnlyProperty<string>): Node {
-  return new Text(stringProperty, { font: LABEL_FONT, fill: LunarLanderColors.foregroundColorProperty });
-}
+const TOGGLE_BUTTON_SIZE = 44;
 
 export class ControlPanel extends Panel {
   public constructor(model: LunarLanderModel) {
     const controls = StringManager.getInstance().getControlStrings();
 
-    const checkboxGroup = new VerticalCheckboxGroup(
-      [
-        { property: model.showVectorsProperty, createNode: () => labelText(controls.vectorsStringProperty) },
-        { property: model.soundEnabledProperty, createNode: () => labelText(controls.soundStringProperty) },
-      ],
-      {
-        spacing: 8,
-        checkboxOptions: {
-          checkboxColor: LunarLanderColors.foregroundColorProperty,
-          checkboxColorBackground: LunarLanderColors.readoutBackgroundColorProperty,
-        },
-      },
-    );
+    const toggleOptions = {
+      baseColor: LunarLanderColors.controlButtonColorProperty,
+      minWidth: TOGGLE_BUTTON_SIZE,
+      minHeight: TOGGLE_BUTTON_SIZE,
+    };
+
+    // Eye open/closed → show/hide the velocity & acceleration vectors.
+    const vectorsButton = new EyeToggleButton(model.showVectorsProperty, {
+      ...toggleOptions,
+      accessibleName: controls.vectorsStringProperty,
+    });
+    // Speaker on/off → enable/disable the sound effects.
+    const soundButton = new SoundToggleButton(model.soundEnabledProperty, {
+      ...toggleOptions,
+      accessibleName: controls.soundStringProperty,
+    });
+
+    const toggleButtons = new HBox({ spacing: 12, children: [vectorsButton, soundButton] });
 
     const content = new VBox({
       align: "center",
@@ -46,7 +46,7 @@ export class ControlPanel extends Panel {
         new AttitudeIndicatorNode(model.lander.angleProperty),
         new ReadoutsNode(model),
         new FuelGaugeNode(model),
-        checkboxGroup,
+        toggleButtons,
       ],
     });
 

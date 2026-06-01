@@ -5,22 +5,22 @@
  * left/right, and a full-thrust toggle. Each button calls the same model method
  * the keyboard does, so touch and keyboard stay in sync.
  */
-import { HBox, type Node, VBox } from "scenerystack/scenery";
-import { PhetFont } from "scenerystack/scenery-phet";
-import { ArrowButton, TextPushButton } from "scenerystack/sun";
+import { Shape } from "scenerystack/kite";
+import { HBox, Node, Path, VBox } from "scenerystack/scenery";
+import { ArrowButton, RectangularPushButton } from "scenerystack/sun";
 import { StringManager } from "../../i18n/StringManager.js";
+import LunarLanderColors from "../../LunarLanderColors.js";
 import type { LunarLanderModel } from "../model/LunarLanderModel.js";
 
 const HOLD_DELAY = 350; // ms before press-and-hold begins repeating
 const HOLD_INTERVAL = 120; // ms between repeats while held
-const BUTTON_BASE_COLOR = "#c8c8d0";
 
 export class ThrottleControlNode extends VBox {
   public constructor(model: LunarLanderModel) {
     const controls = StringManager.getInstance().getControlStrings();
 
     const arrowOptions = {
-      baseColor: BUTTON_BASE_COLOR,
+      baseColor: LunarLanderColors.controlButtonColorProperty,
       fireOnHold: true,
       fireOnHoldDelay: HOLD_DELAY,
       fireOnHoldInterval: HOLD_INTERVAL,
@@ -48,12 +48,35 @@ export class ThrottleControlNode extends VBox {
     const thrustColumn = new VBox({ spacing: 6, children: [thrustUp, thrustDown] });
     const row: Node = new HBox({ spacing: 10, align: "center", children: [tiltLeft, thrustColumn, tiltRight] });
 
-    const fullThrust = new TextPushButton(controls.fullThrustStringProperty, {
-      font: new PhetFont(13),
-      baseColor: BUTTON_BASE_COLOR,
+    // A flame icon (matching the lander's own plume) stands in for "full thrust".
+    const fullThrust = new RectangularPushButton({
+      content: ThrottleControlNode.createFlameIcon(),
+      baseColor: LunarLanderColors.controlButtonColorProperty,
+      xMargin: 12,
+      yMargin: 6,
+      accessibleName: controls.fullThrustStringProperty,
       listener: () => model.toggleFullThrust(),
     });
 
     super({ spacing: 8, align: "center", children: [row, fullThrust] });
+  }
+
+  /** A small upward-pointing flame (outer plume / mid / hot core), in view pixels. */
+  private static createFlameIcon(): Node {
+    const length = 24;
+    const plume = (halfWidth: number, len: number): Shape =>
+      new Shape()
+        .moveTo(-halfWidth, 0)
+        .quadraticCurveTo(-halfWidth * 0.4, -len * 0.7, 0, -len)
+        .quadraticCurveTo(halfWidth * 0.4, -len * 0.7, halfWidth, 0)
+        .close();
+
+    return new Node({
+      children: [
+        new Path(plume(7, length), { fill: LunarLanderColors.flameColorProperty }),
+        new Path(plume(4.3, length * 0.72), { fill: LunarLanderColors.flameMidColorProperty }),
+        new Path(plume(2, length * 0.42), { fill: LunarLanderColors.flameCoreColorProperty }),
+      ],
+    });
   }
 }

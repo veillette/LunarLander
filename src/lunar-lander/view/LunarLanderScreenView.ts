@@ -6,15 +6,13 @@
  * panel, score, on-screen throttle controls, and the global keyboard controls.
  * Overlays and sound are layered on in later steps.
  */
-import { DerivedProperty } from "scenerystack/axon";
 import { Bounds2, Matrix3, Vector2 } from "scenerystack/dot";
 import { Shape } from "scenerystack/kite";
 import { ModelViewTransform2 } from "scenerystack/phetcommon";
-import { KeyboardListener, Node } from "scenerystack/scenery";
-import { PhetFont, ResetAllButton } from "scenerystack/scenery-phet";
+import { HBox, KeyboardListener, Node } from "scenerystack/scenery";
+import { InfoButton, PlayPauseButton, ResetAllButton } from "scenerystack/scenery-phet";
 import type { Dialog, ScreenViewOptions } from "scenerystack/sim";
 import { ScreenView } from "scenerystack/sim";
-import { TextPushButton } from "scenerystack/sun";
 import type { Tandem } from "scenerystack/tandem";
 import { StringManager } from "../../i18n/StringManager.js";
 import LunarLanderConstants from "../model/LunarLanderConstants.js";
@@ -114,38 +112,40 @@ export class LunarLanderScreenView extends ScreenView {
         model.reset();
         this.reset();
       },
-      right: layoutBounds.maxX - margin,
-      bottom: layoutBounds.maxY - margin,
       tandem: providedOptions.tandem.createTandem("resetAllButton"),
     });
 
-    // Help/Pause: pause and open the help dialog; closing it (or pressing again) resumes.
+    // The info button pauses and opens the help dialog; closing it resumes play.
     this.helpDialog = createHelpDialog(() => {
       if (model.hasStartedProperty.value) {
         model.isPlayingProperty.value = true;
       }
     });
     const controls = StringManager.getInstance().getControlStrings();
-    const helpPauseLabel = new DerivedProperty(
-      [model.isPlayingProperty, model.hasStartedProperty, controls.helpStringProperty, controls.unpauseStringProperty],
-      (playing, started, help, unpause) => (!started || playing ? help : unpause),
-    );
-    const helpPauseButton = new TextPushButton(helpPauseLabel, {
-      font: new PhetFont(14),
-      baseColor: "#c8c8d0",
-      listener: () => {
-        if (model.isPlayingProperty.value) {
-          model.isPlayingProperty.value = false;
-          this.helpDialog.show();
-        } else if (this.helpDialog.isShowingProperty.value) {
-          this.helpDialog.hide();
-        } else if (model.hasStartedProperty.value) {
-          model.isPlayingProperty.value = true;
-        }
-      },
+
+    // Play/Pause drives the model directly; only meaningful once the game has started.
+    const playPauseButton = new PlayPauseButton(model.isPlayingProperty, {
+      radius: 23,
+      enabledProperty: model.hasStartedProperty,
+      tandem: providedOptions.tandem.createTandem("playPauseButton"),
     });
-    helpPauseButton.right = resetAllButton.left - margin;
-    helpPauseButton.centerY = resetAllButton.centerY;
+
+    const infoButton = new InfoButton({
+      accessibleName: controls.helpStringProperty,
+      listener: () => {
+        model.isPlayingProperty.value = false;
+        this.helpDialog.show();
+      },
+      tandem: providedOptions.tandem.createTandem("infoButton"),
+    });
+
+    const bottomControls = new HBox({
+      spacing: 10,
+      align: "center",
+      children: [infoButton, playPauseButton, resetAllButton],
+      right: layoutBounds.maxX - margin,
+      bottom: layoutBounds.maxY - margin,
+    });
 
     const startOverlay = new StartOverlayNode(model, this.playAreaViewBounds, () => model.startGame());
 
@@ -158,8 +158,7 @@ export class LunarLanderScreenView extends ScreenView {
       controlPanel,
       scoreReadout,
       throttleControl,
-      resetAllButton,
-      helpPauseButton,
+      bottomControls,
       startOverlay,
     ];
 
