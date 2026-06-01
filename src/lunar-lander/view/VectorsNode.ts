@@ -12,6 +12,7 @@ import { Node } from "scenerystack/scenery";
 import { ArrowNode } from "scenerystack/scenery-phet";
 import LunarLanderColors from "../../LunarLanderColors.js";
 import type { LunarLanderModel } from "../model/LunarLanderModel.js";
+import { LanderNode } from "./LanderNode.js";
 
 const ARROW_OPTIONS = { headWidth: 12, headHeight: 12, tailWidth: 4, stroke: null } as const;
 
@@ -35,8 +36,13 @@ export class VectorsNode extends Node {
     });
     this.children = [accelerationArrow, velocityArrow];
 
+    // Anchor the arrows at the lander's body centre, matching the sprite's
+    // upward shift (the model position is the foot-contact point, the body sits
+    // LEG_CONTACT_OFFSET metres above it).
+    const bodyOffsetView = LanderNode.LEG_CONTACT_OFFSET * modelViewTransform.modelToViewDeltaX(1);
+
     const updateArrow = (arrow: ArrowNode, position: Vector2, vector: Vector2, scale: number): void => {
-      const tail = modelViewTransform.modelToViewPosition(position);
+      const tail = modelViewTransform.modelToViewPosition(position).plusXY(0, -bodyOffsetView);
       const tip = tail.plus(modelViewTransform.modelToViewDelta(vector.timesScalar(scale)));
       arrow.setTailAndTip(tail.x, tail.y, tip.x, tip.y);
     };

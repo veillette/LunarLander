@@ -13,6 +13,12 @@
  * Orientation: the sprite is drawn in screen convention (−y is up), so at angle 0
  * the cabin is up and the engine/flame point down. Setting rotation = angle makes
  * a positive tilt lean the lander toward +x, matching aX = thrust·sin(angle)/m.
+ *
+ * Anchoring: the model position is the lander's ground-contact point (where the
+ * model rests it on the surface at touchdown). The sprite's body origin sits at
+ * its centre, with the legs splayed LEG_CONTACT_OFFSET metres below, so the node
+ * is shifted up by that offset — placing the foot pads, not the body centre, on
+ * the model position. This is why the legs rest ON the surface instead of below it.
  */
 import { Multilink } from "scenerystack/axon";
 import { Shape } from "scenerystack/kite";
@@ -34,8 +40,16 @@ const CABIN_HALF_WIDTH = 2.6; // silver ascent stage
 const CABIN_TOP_Y = -5.2;
 const BELL_BOTTOM_Y = 4.2;
 const FLAME_LENGTH = 6.5;
+const LEG_FOOT_Y = 4.7; // foot-pad centre — all three legs rest at this local y so the lander sits flush
+const FOOT_PAD_RX = 0.85;
+const FOOT_PAD_RY = 0.4;
 
 export class LanderNode extends Node {
+  // Model-metre distance from the body origin (the model position) down to the
+  // foot-pad bottom — the ground-contact line. The sprite is shifted up by this
+  // so the landing legs rest ON the surface rather than sinking below it.
+  public static readonly LEG_CONTACT_OFFSET = LEG_FOOT_Y + FOOT_PAD_RY;
+
   private readonly leftPuff: Node;
   private readonly rightPuff: Node;
   private leftPuffTimer = 0;
@@ -44,8 +58,9 @@ export class LanderNode extends Node {
   public constructor(model: LunarLanderModel, modelViewTransform: ModelViewTransform2) {
     super({ pickable: false });
 
+    const metersToView = modelViewTransform.modelToViewDeltaX(1);
     const graphic = new Node();
-    graphic.setScaleMagnitude(modelViewTransform.modelToViewDeltaX(1));
+    graphic.setScaleMagnitude(metersToView);
     this.addChild(graphic);
 
     // ── Body + flame (children of graphic so they rotate with the lander) ────
@@ -59,9 +74,12 @@ export class LanderNode extends Node {
     graphic.addChild(this.leftPuff);
     graphic.addChild(this.rightPuff);
 
-    // Position follows the lander; rotation follows the tilt angle.
+    // Position follows the lander; rotation follows the tilt angle. The node is
+    // shifted up by the leg reach so the foot pads (not the body centre) sit on
+    // the model position — i.e. the legs rest on the surface at touchdown.
+    const contactOffsetView = LanderNode.LEG_CONTACT_OFFSET * metersToView;
     model.lander.positionProperty.link((position) => {
-      this.translation = modelViewTransform.modelToViewPosition(position);
+      this.translation = modelViewTransform.modelToViewPosition(position).plusXY(0, -contactOffsetView);
     });
     model.lander.angleProperty.link((angle) => {
       graphic.rotation = angle;
@@ -218,29 +236,34 @@ export class LanderNode extends Node {
   private static buildLeg(sign: number): Node {
     const node = new Node();
     const footX = sign * 6.0;
-    const footY = 4.7;
+    const footY = LEG_FOOT_Y;
     const struts = new Shape();
     struts.moveTo(sign * (DESCENT_HALF_WIDTH - 0.6), DESCENT_TOP_Y + 0.6).lineTo(footX, footY);
     struts.moveTo(sign * (DESCENT_HALF_WIDTH - 0.4), DESCENT_BOTTOM_Y - 0.4).lineTo(footX, footY);
     node.addChild(new Path(struts, { stroke: LunarLanderColors.landerLegColorProperty, lineWidth: 0.42 }));
     // Foot pad.
     node.addChild(
-      new Path(new Shape().ellipse(footX, footY, 0.85, 0.4, 0), { fill: LunarLanderColors.landerLegColorProperty }),
+      new Path(new Shape().ellipse(footX, footY, FOOT_PAD_RX, FOOT_PAD_RY, 0), {
+        fill: LunarLanderColors.landerLegColorProperty,
+      }),
     );
     return node;
   }
 
-  /** The near (front) leg, drawn straight down the centre. */
+  /** The near (front) leg, drawn straight down the centre. Its foot shares the
+   * side legs' contact level (LEG_FOOT_Y) so all three pads rest on the surface. */
   private static buildCenterLeg(): Node {
     const node = new Node();
     node.addChild(
-      new Path(new Shape().moveTo(0, DESCENT_BOTTOM_Y - 0.2).lineTo(0, 5.3), {
+      new Path(new Shape().moveTo(0, DESCENT_BOTTOM_Y - 0.2).lineTo(0, LEG_FOOT_Y - 0.1), {
         stroke: LunarLanderColors.landerLegColorProperty,
         lineWidth: 0.42,
       }),
     );
     node.addChild(
-      new Path(new Shape().ellipse(0, 5.4, 0.85, 0.4, 0), { fill: LunarLanderColors.landerLegColorProperty }),
+      new Path(new Shape().ellipse(0, LEG_FOOT_Y, FOOT_PAD_RX, FOOT_PAD_RY, 0), {
+        fill: LunarLanderColors.landerLegColorProperty,
+      }),
     );
     return node;
   }
