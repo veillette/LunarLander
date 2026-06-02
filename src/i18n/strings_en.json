@@ -16,10 +16,8 @@
     "empty": "E"
   },
   "controls": {
-    "sound": "Sound",
     "vectors": "Vectors",
     "reset": "Reset",
-    "help": "Help",
     "start": "Start",
     "paused": "Paused",
     "moreThrust": "More Thrust",
@@ -42,13 +40,18 @@
     "hitBoulder": "Hit boulder. Leg damaged. Fuel lost."
   },
   "help": {
-    "title": "Keyboard Controls",
-    "instructions": "How many flat zones can you touch before the fuel is out? Extra points for soft landings (v < 2 m/s). Game over if you hit a boulder or crash land (v > 6 m/s).",
-    "controlLander": "Control the lander with the keyboard.",
+    "instructions": "Land in as many different flat zones as you can before your fuel runs out.<br>After landing, take off again by increasing thrust.<br>No credit for landing in the same zone more than once.<br>Extra points for soft landings (v < 2 m/s).<br>Game over if you hit a boulder or crash land (v > 6 m/s).",
     "upDownThrust": "Up / Down arrows: more / less thrust",
     "leftRightTilt": "Left / Right arrows: tilt the lander",
-    "spaceFullThrust": "Space bar: toggle full thrust",
-    "rReset": "R: reset",
-    "pPause": "P: pause"
+    "spaceFullThrust": "Space bar: toggle full thrust"
+  },
+  "keyboardHelp": {
+    "flightControlsHeading": "Flight Controls",
+    "gameControlsHeading": "Game Controls",
+    "thrust": "Increase / decrease thrust",
+    "tilt": "Tilt left / right",
+    "fullThrust": "Toggle full thrust",
+    "reset": "Reset / new game",
+    "pausePlay": "Pause or play"
   }
 }

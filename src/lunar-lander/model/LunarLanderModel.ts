@@ -57,7 +57,6 @@ export class LunarLanderModel implements TModel {
   public readonly hasStartedProperty = new BooleanProperty(false);
 
   public readonly showVectorsProperty = new BooleanProperty(true);
-  public readonly soundEnabledProperty = new BooleanProperty(true);
 
   public readonly lowFuelProperty: TReadOnlyProperty<boolean>;
 
@@ -264,7 +263,6 @@ export class LunarLanderModel implements TModel {
     this.isPlayingProperty.reset();
     this.hasStartedProperty.reset();
     this.showVectorsProperty.reset();
-    this.soundEnabledProperty.reset();
     this.timeAccumulator = 0;
   }
 }

@@ -6,9 +6,9 @@
  */
 import { DerivedProperty } from "scenerystack/axon";
 import type { Bounds2 } from "scenerystack/dot";
-import { Node, Rectangle, RichText, Text, VBox } from "scenerystack/scenery";
-import { PhetFont } from "scenerystack/scenery-phet";
-import { TextPushButton } from "scenerystack/sun";
+import { Node, Path, Rectangle, RichText, Text, VBox } from "scenerystack/scenery";
+import { PhetFont, PlayIconShape } from "scenerystack/scenery-phet";
+import { RoundPushButton } from "scenerystack/sun";
 import { StringManager } from "../../i18n/StringManager.js";
 import LunarLanderColors from "../../LunarLanderColors.js";
 import type { LunarLanderModel } from "../model/LunarLanderModel.js";
@@ -48,12 +48,14 @@ export class StartOverlayNode extends Node {
       ],
     });
 
-    const startButton = new TextPushButton(controls.startStringProperty, {
-      font: new PhetFont({ size: 20, weight: "bold" }),
+    // Iconic right-pointing "play" triangle.
+    const playIcon = new Path(new PlayIconShape(26, 32), { fill: "black" });
+    const startButton = new RoundPushButton({
+      content: playIcon,
       baseColor: "#35cc35",
-      xMargin: 18,
-      yMargin: 8,
+      radius: 36,
       listener: onStart,
+      accessibleName: controls.startStringProperty,
     });
 
     const content = new VBox({

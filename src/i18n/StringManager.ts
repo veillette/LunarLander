@@ -75,4 +75,8 @@ export class StringManager {
   public getHelpStrings() {
     return stringProperties.help;
   }
+
+  public getKeyboardHelpStrings() {
+    return stringProperties.keyboardHelp;
+  }
 }

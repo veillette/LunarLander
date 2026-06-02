@@ -16,10 +16,8 @@
     "empty": "V"
   },
   "controls": {
-    "sound": "Son",
     "vectors": "Vecteurs",
     "reset": "RAZ",
-    "help": "Aide",
     "start": "Départ",
     "paused": "En pause",
     "moreThrust": "Plus de poussée",
@@ -42,13 +40,18 @@
     "hitBoulder": "Choc contre un rocher. Pieds cassés. Carburant perdu."
   },
   "help": {
-    "title": "Touches utiles",
-    "instructions": "Combien de zones plates toucherez-vous avant la panne sèche ? Points bonus pour un alunissage en douceur (v < 2 m/s). Fin de partie si choc contre un rocher ou alunissage (v > 6 m/s).",
-    "controlLander": "Contrôle du vaisseau au clavier.",
+    "instructions": "Posez-vous dans le plus de zones plates différentes possible avant la panne sèche.<br>Après l'alunissage, redécollez en augmentant la poussée.<br>Aucun point pour un alunissage répété dans la même zone.<br>Points bonus pour un alunissage en douceur (v < 2 m/s).<br>Fin de partie si choc contre un rocher ou alunissage éprouvant (v > 6 m/s).",
     "upDownThrust": "Flèches Haut / Bas : plus / moins de poussée",
     "leftRightTilt": "Flèches Gauche / Droite : incliner le vaisseau",
-    "spaceFullThrust": "Barre d'espace : poussée maximale",
-    "rReset": "R : réinitialiser",
-    "pPause": "P : pause"
+    "spaceFullThrust": "Barre d'espace : poussée maximale"
+  },
+  "keyboardHelp": {
+    "flightControlsHeading": "Commandes de vol",
+    "gameControlsHeading": "Commandes de jeu",
+    "thrust": "Augmenter / diminuer la poussée",
+    "tilt": "Incliner à gauche / droite",
+    "fullThrust": "Activer la poussée maximale",
+    "reset": "Réinitialiser / nouvelle partie",
+    "pausePlay": "Mettre en pause ou reprendre"
   }
 }

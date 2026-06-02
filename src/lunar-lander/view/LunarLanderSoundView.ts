@@ -7,7 +7,8 @@
  *   - a short RCS blip on each tilt,
  *   - a low-fuel / empty-tank alarm beep,
  *   - a noise burst on explosion.
- * All gated by the model's Sound checkbox (soundEnabledProperty).
+ * All generators are registered with tambo's soundManager, so the
+ * navigation-bar speaker mutes them globally.
  */
 import { Multilink } from "scenerystack/axon";
 import { NoiseGenerator, OscillatorSoundGenerator, soundManager } from "scenerystack/tambo";
@@ -21,7 +22,6 @@ const ALARM_BEEP_DURATION = 0.3; // s
 const EXPLOSION_DURATION = 0.7; // s
 
 export class LunarLanderSoundView {
-  private readonly model: LunarLanderModel;
   private readonly thrust: OscillatorSoundGenerator;
   private readonly rcs: OscillatorSoundGenerator;
   private readonly alarm: OscillatorSoundGenerator;
@@ -32,8 +32,6 @@ export class LunarLanderSoundView {
   private explosionTimer = 0;
 
   public constructor(model: LunarLanderModel) {
-    this.model = model;
-
     this.thrust = new OscillatorSoundGenerator({ initialFrequency: 90, initialOutputLevel: 0 });
     this.rcs = new OscillatorSoundGenerator({ initialFrequency: 320, initialOutputLevel: 0 });
     this.alarm = new OscillatorSoundGenerator({ initialFrequency: 740, initialOutputLevel: 0 });
@@ -51,28 +49,21 @@ export class LunarLanderSoundView {
     this.explosion.start();
 
     // Thrust drone tracks the effective thrust fraction.
-    Multilink.multilink(
-      [model.lander.thrustProperty, model.lander.remainingFuelProperty, model.soundEnabledProperty],
-      (thrust, fuel, soundOn) => {
-        const fraction = soundOn && fuel > 0 ? thrust / MAX_THRUST : 0;
-        this.thrust.setOutputLevel(fraction > 0.01 ? 0.18 * fraction : 0, 0.05);
-      },
-    );
+    Multilink.multilink([model.lander.thrustProperty, model.lander.remainingFuelProperty], (thrust, fuel) => {
+      const fraction = fuel > 0 ? thrust / MAX_THRUST : 0;
+      this.thrust.setOutputLevel(fraction > 0.01 ? 0.18 * fraction : 0, 0.05);
+    });
 
     // RCS blip on each tilt.
     model.tiltEmitter.addListener(() => {
-      if (model.soundEnabledProperty.value) {
-        this.rcs.setOutputLevel(0.12, 0.01);
-        this.rcsTimer = RCS_BEEP_DURATION;
-      }
+      this.rcs.setOutputLevel(0.12, 0.01);
+      this.rcsTimer = RCS_BEEP_DURATION;
     });
 
     // Explosion noise burst.
     model.explosionEmitter.addListener(() => {
-      if (model.soundEnabledProperty.value) {
-        this.explosion.setOutputLevel(0.4, 0.02);
-        this.explosionTimer = EXPLOSION_DURATION;
-      }
+      this.explosion.setOutputLevel(0.4, 0.02);
+      this.explosionTimer = EXPLOSION_DURATION;
     });
 
     // Low-fuel and empty-tank alarm beeps (fire on the transition, like the original).
@@ -86,26 +77,11 @@ export class LunarLanderSoundView {
         this.beepAlarm();
       }
     });
-
-    // Silence everything immediately when sound is turned off.
-    model.soundEnabledProperty.link((soundOn) => {
-      if (!soundOn) {
-        this.thrust.setOutputLevel(0);
-        this.rcs.setOutputLevel(0);
-        this.alarm.setOutputLevel(0);
-        this.explosion.setOutputLevel(0);
-        this.rcsTimer = 0;
-        this.alarmTimer = 0;
-        this.explosionTimer = 0;
-      }
-    });
   }
 
   private beepAlarm(): void {
-    if (this.model.soundEnabledProperty.value) {
-      this.alarm.setOutputLevel(0.15, 0.01);
-      this.alarmTimer = ALARM_BEEP_DURATION;
-    }
+    this.alarm.setOutputLevel(0.15, 0.01);
+    this.alarmTimer = ALARM_BEEP_DURATION;
   }
 
   public step(dt: number): void {

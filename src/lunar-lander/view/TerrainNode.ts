@@ -82,12 +82,16 @@ export class TerrainNode extends Node {
     const maxX = modelViewTransform.modelToViewX(terrain.maxX);
     const bottomY = modelViewTransform.modelToViewY(LunarLanderConstants.MODEL_MIN_Y);
     const topY = Math.min(...points.map((p) => p.y));
+    // Carry the fill far below the world floor so the body still covers the
+    // bottom of the play area when the camera zooms out (the floor lifts up
+    // under the scale-about-focal-point). Off-screen and clipped, so it's free.
+    const fillBottomY = bottomY + 4000;
 
-    // ── Filled body (rounded top, closed down to the world floor) ───────────
+    // ── Filled body (rounded top, closed down past the world floor) ─────────
     const bodyShape = new Shape();
     appendRoundedTop(bodyShape, points, CORNER_RADIUS);
-    bodyShape.lineTo(maxX, bottomY);
-    bodyShape.lineTo(minX, bottomY);
+    bodyShape.lineTo(maxX, fillBottomY);
+    bodyShape.lineTo(minX, fillBottomY);
     bodyShape.close();
 
     const fill = new LinearGradient(0, topY, 0, bottomY);

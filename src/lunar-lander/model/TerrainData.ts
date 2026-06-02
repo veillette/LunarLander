@@ -55,6 +55,36 @@ const BASE_GAP = 7; // m between pads
 const BOULDER_GAP = 16; // m for gaps that hold a boulder
 const TAIL = 18; // m of terrain after the last pad
 
+// Wide stretches of empty rolling hills flanking the scored pads, so the moon
+// extends well beyond a single screen — the view pans to follow the lander and,
+// when it climbs, zooms out to reveal more of this terrain.
+const LEFT_MARGIN = 240; // m of rolling hills before the lead-in
+const RIGHT_MARGIN = 240; // m of rolling hills after the tail
+const HILL_STEP = 12; // m between hill vertices
+
+/**
+ * Append a run of gentle, deterministic rolling hills as slope segments from
+ * (x0, hStart) to (x1, hEnd). The undulation is enveloped to zero at both ends
+ * (sin πt) so each margin joins its neighbour at exactly hStart / hEnd.
+ */
+function appendHills(segments: TerrainSegment[], x0: number, x1: number, hStart: number, hEnd: number): void {
+  const span = x1 - x0;
+  const steps = Math.max(2, Math.round(span / HILL_STEP));
+  let prevX = x0;
+  let prevH = hStart;
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    const x = x0 + t * span;
+    const base = hStart + (hEnd - hStart) * t;
+    const envelope = Math.sin(Math.PI * t); // 0 at both ends, 1 in the middle
+    const undulation = envelope * (7 * Math.sin(x * 0.08) + 4 * Math.sin(x * 0.19 + 1.3));
+    const h = i === steps ? hEnd : base + undulation;
+    segments.push({ kind: "slope", x0: prevX, x1: x, height0: prevH, height1: h });
+    prevX = x;
+    prevH = h;
+  }
+}
+
 function build(): TerrainData {
   const scores = LunarLanderConstants.SPOT_SCORES;
   const segments: TerrainSegment[] = [];
@@ -63,10 +93,15 @@ function build(): TerrainData {
   let x = 0;
   let startX = LunarLanderConstants.INITIAL_X;
 
-  // Lead-in slope from x=0 up to the first pad.
   const firstHeight = PAD_HEIGHTS[0];
-  segments.push({ kind: "slope", x0: 0, x1: LEAD_IN, height0: firstHeight - 4, height1: firstHeight });
-  x = LEAD_IN;
+
+  // Left margin of rolling hills, leading into the original lead-in slope.
+  appendHills(segments, 0, LEFT_MARGIN, 30, firstHeight - 4);
+  x = LEFT_MARGIN;
+
+  // Lead-in slope up to the first pad.
+  segments.push({ kind: "slope", x0: x, x1: x + LEAD_IN, height0: firstHeight - 4, height1: firstHeight });
+  x += LEAD_IN;
 
   for (let zone = 1; zone <= 15; zone++) {
     const height = PAD_HEIGHTS[zone - 1] ?? 28;
@@ -94,10 +129,12 @@ function build(): TerrainData {
     }
   }
 
-  // Tail slope down off the right edge.
+  // Tail slope down off the last pad, then a right margin of rolling hills.
   const lastHeight = PAD_HEIGHTS[14];
   segments.push({ kind: "slope", x0: x, x1: x + TAIL, height0: lastHeight, height1: lastHeight - 6 });
   x += TAIL;
+  appendHills(segments, x, x + RIGHT_MARGIN, lastHeight - 6, 28);
+  x += RIGHT_MARGIN;
 
   return { segments, boulders, minX: 0, maxX: x, startX };
 }

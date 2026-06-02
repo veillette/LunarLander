@@ -46,6 +46,11 @@ const LunarLanderConstants = {
   // smoothly zooms in on the spot directly below it as the clearance drops.
   ZOOM_START_ALTITUDE: 70, // m — at or above this clearance the view is unzoomed (z = 1)
   ZOOM_MAX: 3, // × — zoom factor at touchdown (altitude 0)
+  // The mirror image: when the lander climbs above the top of the world it would
+  // leave the (clipped) play area, so the view zooms back out to keep it on-screen,
+  // pinning it to a band ZOOM_OUT_TOP_FRACTION below the top edge.
+  ZOOM_OUT_TOP_FRACTION: 0.12, // fraction of play-area height the lander rides below the top while climbing
+  ZOOM_OUT_MIN: 0.4, // × — floor on the zoom-out factor (shows up to ~MODEL_MAX_ALTITUDE / this)
 
   // ── Initial lander state ────────────────────────────────────────────────────
   INITIAL_X: 30, // m — horizontal start (over a wide, easy pad on the left)

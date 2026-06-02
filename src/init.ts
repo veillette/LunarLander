@@ -38,6 +38,12 @@ init({
   // Allow the user to switch locale at runtime via the Preferences dialog.
   allowLocaleSwitching: true,
 
+  // Enable sound by default. This sets phet.simFeatures.supportsSound, which is what
+  // tambo's soundManager.enabledProperty (the global master sound enable) initializes
+  // from — so without it the master starts muted even though main.ts initializes the
+  // sound system via audioOptions.supportsSound and the in-sim toggle defaults on.
+  supportsSound: true,
+
   // Enables the "Projector Mode" color profile (light theme) alongside the dark default.
   colorProfiles: ["default", "projector"],
 });

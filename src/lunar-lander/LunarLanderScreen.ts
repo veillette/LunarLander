@@ -9,6 +9,7 @@ import { Screen } from "scenerystack/sim";
 import type { Tandem } from "scenerystack/tandem";
 import LunarLanderColors from "../LunarLanderColors.js";
 import { LunarLanderModel } from "./model/LunarLanderModel.js";
+import { LunarLanderKeyboardHelpContent } from "./view/LunarLanderKeyboardHelpContent.js";
 import { LunarLanderScreenView } from "./view/LunarLanderScreenView.js";
 
 type LunarLanderScreenOptions = ScreenOptions & { tandem: Tandem };
@@ -20,6 +21,8 @@ export class LunarLanderScreen extends Screen<LunarLanderModel, LunarLanderScree
       (model) => new LunarLanderScreenView(model, { tandem: options.tandem.createTandem("view") }),
       {
         backgroundColorProperty: LunarLanderColors.spaceBackgroundColorProperty,
+        // Adds the standard keyboard-help "?" button to the navigation bar.
+        createKeyboardHelpNode: () => new LunarLanderKeyboardHelpContent(),
         ...options,
       },
     );
