@@ -6,7 +6,7 @@ the moon's surface: manage thrust and tilt against gravity while your fuel runs
 down, score points for touching different flat zones, and avoid boulders and
 high-speed crashes.
 
-![Lunar Lander ScreenShot](./lunarLanderScreenShot.png)
+![Lunar Lander Screenshot](./lunarLanderScreenshot.png)
 
 Built with Vite 8, TypeScript 6, and Biome 2, packaged as an installable PWA with
 English and French localization and a projector (light) color profile.
