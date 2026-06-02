@@ -93,15 +93,8 @@ scripts/
 
 ## Notes on the port
 
-- The terrain geometry, sounds, and exact initial conditions lived in the binary
-  `.fla` and could not be extracted. The terrain is a hand-designed, data-driven
-  recreation (15 flat pads whose widths are inversely related to their point
+- The terrain is a hand-designed, data-driven
+  recreation (flat pads whose widths are inversely related to their point
   values, plus slopes and boulders); the sounds are synthesized with tambo
   oscillators and a noise burst. The physics constants and per-zone scores are
   reproduced verbatim from the original ActionScript.
-- The original's landing "level" test (`angle < 0.2`, signed) is replaced with the
-  symmetric `Math.abs(angle) < 0.2` so either tilt direction is treated equally.
-
-## License
-
-MIT
