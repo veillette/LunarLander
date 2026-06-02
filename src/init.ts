@@ -44,6 +44,13 @@ init({
   // sound system via audioOptions.supportsSound and the in-sim toggle defaults on.
   supportsSound: true,
 
+  // Build the Parallel DOM so the Interactive Description features (screen summary,
+  // accessible alerts, keyboard-navigation order) are actually reachable by screen
+  // readers. Without this flag SimDisplay leaves accessibility off, so all of that
+  // PDOM content — though present in the view code — is never rendered. This also
+  // enables Interactive Highlights by default (toggled on in main.ts preferences).
+  supportsInteractiveDescription: true,
+
   // Enables the "Projector Mode" color profile (light theme) alongside the dark default.
   colorProfiles: ["default", "projector"],
 });
