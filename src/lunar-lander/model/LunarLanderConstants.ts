@@ -11,6 +11,15 @@
 
 const MAX_THRUST = 45000; // N — maximum descent-engine thrust
 
+// Point value per landing zone, indexed by zoneIndex (0 = "no zone"). Narrower
+// pads are worth more (see widthForScore in TerrainData); this palette repeats
+// across the wide terrain's 40 scored zones.
+const SPOT_SCORE_PALETTE = [5, 10, 10, 30, 10, 5, 20, 10, 50, 10, 5, 30, 10, 10, 40, 5, 10, 20, 10, 5];
+const SPOT_SCORES: readonly number[] = [
+  0,
+  ...Array.from({ length: 40 }, (_, i) => SPOT_SCORE_PALETTE[i % SPOT_SCORE_PALETTE.length] ?? 5),
+];
+
 const LunarLanderConstants = {
   // ── Physics (exact, from the Flash original) ────────────────────────────────
   GRAVITY: 1.6, // m/s² — lunar surface gravity
@@ -50,7 +59,12 @@ const LunarLanderConstants = {
   // leave the (clipped) play area, so the view zooms back out to keep it on-screen,
   // pinning it to a band ZOOM_OUT_TOP_FRACTION below the top edge.
   ZOOM_OUT_TOP_FRACTION: 0.12, // fraction of play-area height the lander rides below the top while climbing
-  ZOOM_OUT_MIN: 0.4, // × — floor on the zoom-out factor (shows up to ~MODEL_MAX_ALTITUDE / this)
+  // Floor on the zoom-out factor. The view shows up to ~MODEL_MAX_ALTITUDE / this
+  // vertically, so 0.16 keeps the lander on-screen climbing to roughly 1 km.
+  ZOOM_OUT_MIN: 0.16, // ×
+  // Horizontal follow uses a central dead-zone: the lander roams this central
+  // fraction of the play-area width freely before the view starts panning.
+  CAMERA_DEAD_ZONE_FRACTION: 0.3,
 
   // ── Initial lander state ────────────────────────────────────────────────────
   INITIAL_X: 30, // m — horizontal start (over a wide, easy pad on the left)
@@ -62,9 +76,8 @@ const LunarLanderConstants = {
   LANDER_RADIUS: 6, // m
 
   // ── Scoring ─────────────────────────────────────────────────────────────────
-  // Per-zone point values, indexed by zoneIndex (index 0 = "no zone"). Narrower,
-  // harder-to-reach zones are worth more. Taken verbatim from ScoreKeeper.as.
-  SPOT_SCORES: [0, 30, 10, 10, 5, 10, 10, 5, 10, 10, 5, 10, 5, 10, 50, 30] as const,
+  // Per-zone point values (see SPOT_SCORES above), indexed by zoneIndex.
+  SPOT_SCORES,
   SOFT_LANDING_BONUS: 10, // extra points for a soft landing in a scored zone
 
   // ── View layout ─────────────────────────────────────────────────────────────

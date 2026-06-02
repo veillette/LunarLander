@@ -39,6 +39,7 @@ const {
   ZOOM_MAX,
   ZOOM_OUT_TOP_FRACTION,
   ZOOM_OUT_MIN,
+  CAMERA_DEAD_ZONE_FRACTION,
 } = LunarLanderConstants;
 
 export class LunarLanderScreenView extends ScreenView {
@@ -51,6 +52,9 @@ export class LunarLanderScreenView extends ScreenView {
   private readonly landerNode: LanderNode;
   private readonly explosionNode: ExplosionNode;
   private readonly soundView: LunarLanderSoundView;
+  // Model x the camera is centred on; only moves when the lander leaves the
+  // central dead-zone, so the view holds still while the lander roams the middle.
+  private cameraFocusX: number;
 
   public constructor(model: LunarLanderModel, providedOptions: LunarLanderScreenViewOptions) {
     super(providedOptions);
@@ -99,6 +103,8 @@ export class LunarLanderScreenView extends ScreenView {
       children: [this.worldNode],
       clipArea: Shape.bounds(this.playAreaViewBounds),
     });
+    // Start centred on the lander; the dead-zone tracking takes over from there.
+    this.cameraFocusX = model.lander.positionProperty.value.x;
     model.lander.positionProperty.link(() => this.updateCamera());
 
     const messageNode = new MessageNode(
@@ -205,9 +211,12 @@ export class LunarLanderScreenView extends ScreenView {
    * touchdown, like the Flash original — and zooms back out when the lander
    * climbs past the top of the world, so it never disappears off the top edge.
    *
-   * Horizontally it pans so the lander stays centred (the same idea as the zoom,
-   * but a translation rather than a scale), clamped so the wider-than-one-screen
-   * moon always fills the play area — the view never slides past its edges.
+   * Horizontally it pans to follow the lander, but with a central dead-zone: the
+   * lander roams a band around the screen centre freely, and only once it strays
+   * past the band edge does the view pan to hold it there (the same idea as the
+   * zoom, but a translation rather than a scale). Panning is clamped so the
+   * wider-than-one-screen moon always fills the play area — the view never slides
+   * past its edges.
    *
    * The vertical part is a pure scale by z about the focal point f (the surface
    * point under the lander, in base-view pixels): screen.y = f.y + z·(v.y − f.y).
@@ -241,19 +250,34 @@ export class LunarLanderScreenView extends ScreenView {
     // product is a single scale by either the zoom-in or zoom-out factor.
     const z = zIn * zOut;
 
-    // Horizontal follow. With screen.x(vx) = z·vx + c, centring the lander's
-    // column (at base-view x f.x) on the play area gives c = centerX − z·f.x.
-    // Clamp c so the terrain's left/right edges never pull inside the play area:
-    //   z·leftEdge + c ≤ minX  and  z·rightEdge + c ≥ maxX.
+    // Horizontal follow with a central dead-zone. The camera tracks a focus model
+    // x; the lander's on-screen offset from that focus is z·pxPerMeter·(x − focus).
+    // While that stays within the half-band the focus holds; past it the focus
+    // advances just enough to pin the lander to the band edge. Tracking the focus
+    // in model space means pure vertical motion (zoom) induces no horizontal drift.
+    const centerX = this.playAreaViewBounds.centerX;
+    const pxPerMeter = this.modelViewTransform.modelToViewDeltaX(1);
+    const halfBand = (CAMERA_DEAD_ZONE_FRACTION * this.playAreaViewBounds.width) / 2;
+    const offset = z * pxPerMeter * (position.x - this.cameraFocusX);
+    if (offset > halfBand) {
+      this.cameraFocusX = position.x - halfBand / (z * pxPerMeter);
+    } else if (offset < -halfBand) {
+      this.cameraFocusX = position.x + halfBand / (z * pxPerMeter);
+    }
+
+    // Pan so the focus maps to the play-area centre: with screen.x = z·vx + c and
+    // the focus at base-view x vF, c = centerX − z·vF. Clamp c so the terrain's
+    // edges never pull inside the play area: z·leftEdge + c ≤ minX, z·rightEdge + c ≥ maxX.
     const leftEdge = this.modelViewTransform.modelToViewX(this.model.terrain.minX);
     const rightEdge = this.modelViewTransform.modelToViewX(this.model.terrain.maxX);
     const cMin = this.playAreaViewBounds.maxX - z * rightEdge;
     const cMax = this.playAreaViewBounds.minX - z * leftEdge;
-    const cCentered = this.playAreaViewBounds.centerX - z * f.x;
-    const c =
-      cMin <= cMax
-        ? Math.max(cMin, Math.min(cMax, cCentered))
-        : this.playAreaViewBounds.centerX - (z * (leftEdge + rightEdge)) / 2; // terrain narrower than view: centre it
+    const cFocused = centerX - z * this.modelViewTransform.modelToViewX(this.cameraFocusX);
+    const c = cMin <= cMax ? Math.max(cMin, Math.min(cMax, cFocused)) : centerX - (z * (leftEdge + rightEdge)) / 2; // terrain narrower than view: centre it
+
+    // Re-sync the focus to what's actually shown (after clamping), so the dead-zone
+    // is always measured from the true on-screen centre even against the edges.
+    this.cameraFocusX = this.modelViewTransform.viewToModelX((centerX - c) / z);
 
     // Scale about f vertically, translate by c horizontally:
     // [ z 0 c ; 0 z f.y(1−z) ; 0 0 1 ].
@@ -263,6 +287,10 @@ export class LunarLanderScreenView extends ScreenView {
   public reset(): void {
     this.landerNode.reset();
     this.explosionNode.reset();
+    // Recentre the camera on the (reset) lander rather than leaving it wherever
+    // the player last panned to.
+    this.cameraFocusX = this.model.lander.positionProperty.value.x;
+    this.updateCamera();
   }
 
   public override step(dt: number): void {

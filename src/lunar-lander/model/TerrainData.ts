@@ -1,16 +1,15 @@
 /**
  * TerrainData.ts
  *
- * Hand-designed, fixed lunar terrain. The original geometry lived inside the
- * binary .fla and could not be extracted, so this recreates a representative
- * surface that matches the original's gameplay:
- *   - 15 flat landing pads, one per scored zone (zoneIndex 1..15)
+ * A wide, fixed lunar surface. The original geometry lived inside the binary
+ * .fla and could not be extracted, so this generates a representative field:
+ *   - 40 flat landing pads (zoneIndex 1..40) spread across the surface
  *   - pad WIDTH is inversely related to its point value (narrow = worth more)
- *   - gentle slopes between pads, with a few boulders as obstacles
+ *   - rolling-hill gaps between pads, with 35 boulders scattered as obstacles
  *
- * The layout is deterministic (no randomness) so every game uses the same,
- * tuned terrain. Pads are laid left-to-right; the total width defines the
- * model's horizontal extent (see Terrain.maxX).
+ * The layout is generated from a fixed seed, so it is fully deterministic: every
+ * game uses the same terrain. Pads are laid left-to-right; the total width defines
+ * the model's horizontal extent (see Terrain.maxX).
  */
 import LunarLanderConstants from "./LunarLanderConstants.js";
 
@@ -41,31 +40,38 @@ function widthForScore(score: number): number {
   return 14; // 5-point pads are the widest
 }
 
-// Hand-tuned pad elevations (m), one per zone — gentle lunar undulation.
-const PAD_HEIGHTS = [28, 24, 30, 22, 34, 26, 32, 24, 30, 26, 36, 22, 30, 40, 26] as const;
+// ── Generator parameters ──────────────────────────────────────────────────────
+const PAD_COUNT = 40; // scored landing pads spread across the surface
+const BOULDER_COUNT = 35; // obstacle boulders scattered through the inter-pad gaps
+const START_PAD = 19; // 0-based index of the wide, easy pad the lander starts above
 
-// Zone the lander starts above (a wide, easy 5-point pad).
-const START_ZONE = 4;
-
-// Gaps (between consecutive pads) that carry a boulder, keyed by the left zone index.
-const BOULDER_GAPS = new Set<number>([2, 6, 11]);
-
-const LEAD_IN = 16; // m of terrain before the first pad
-const BASE_GAP = 7; // m between pads
-const BOULDER_GAP = 16; // m for gaps that hold a boulder
-const TAIL = 18; // m of terrain after the last pad
-
-// Wide stretches of empty rolling hills flanking the scored pads, so the moon
-// extends well beyond a single screen — the view pans to follow the lander and,
-// when it climbs, zooms out to reveal more of this terrain.
-const LEFT_MARGIN = 240; // m of rolling hills before the lead-in
-const RIGHT_MARGIN = 240; // m of rolling hills after the tail
+const LEAD = 130; // m of rolling hills before the first pad
+const TAIL = 150; // m of rolling hills after the last pad
+const MIN_GAP = 30; // m — minimum hill gap between pads (keeps boulders clear of pads)
+const GAP_SPREAD = 24; // m — extra random gap width on top of MIN_GAP
 const HILL_STEP = 12; // m between hill vertices
+
+// Small deterministic PRNG (mulberry32) so the generated terrain is identical every run.
+function mulberry32(seed: number): () => number {
+  let a = seed;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Gentle, deterministic per-pad elevation (m), bounded well under the world top.
+function padHeight(i: number): number {
+  return 30 + 11 * Math.sin(i * 0.55 + 0.7) + 5 * Math.sin(i * 1.9);
+}
 
 /**
  * Append a run of gentle, deterministic rolling hills as slope segments from
  * (x0, hStart) to (x1, hEnd). The undulation is enveloped to zero at both ends
- * (sin πt) so each margin joins its neighbour at exactly hStart / hEnd.
+ * (sin πt) so each run joins its neighbour at exactly hStart / hEnd.
  */
 function appendHills(segments: TerrainSegment[], x0: number, x1: number, hStart: number, hEnd: number): void {
   const span = x1 - x0;
@@ -85,56 +91,69 @@ function appendHills(segments: TerrainSegment[], x0: number, x1: number, hStart:
   }
 }
 
+/** Surface elevation at x over already-built segments (mirrors Terrain.surfaceY). */
+function surfaceYAt(segments: ReadonlyArray<TerrainSegment>, x: number): number {
+  for (const s of segments) {
+    if (x >= s.x0 && x <= s.x1) {
+      if (s.kind === "flat") {
+        return s.height;
+      }
+      const t = s.x1 === s.x0 ? 0 : (x - s.x0) / (s.x1 - s.x0);
+      return s.height0 + t * (s.height1 - s.height0);
+    }
+  }
+  return 0;
+}
+
 function build(): TerrainData {
   const scores = LunarLanderConstants.SPOT_SCORES;
+  const rand = mulberry32(0x5eed42);
   const segments: TerrainSegment[] = [];
   const boulders: Boulder[] = [];
 
   let x = 0;
   let startX = LunarLanderConstants.INITIAL_X;
 
-  const firstHeight = PAD_HEIGHTS[0];
+  // Leading margin of rolling hills up to the first pad.
+  appendHills(segments, x, x + LEAD, 28, padHeight(0));
+  x += LEAD;
 
-  // Left margin of rolling hills, leading into the original lead-in slope.
-  appendHills(segments, 0, LEFT_MARGIN, 30, firstHeight - 4);
-  x = LEFT_MARGIN;
+  // Pads laid left-to-right, each followed by a rolling-hill gap to the next.
+  const gapCenters: number[] = []; // x of each inter-pad gap centre (boulder candidates)
+  for (let i = 0; i < PAD_COUNT; i++) {
+    const zone = i + 1;
+    const height = padHeight(i);
+    // The start pad is forced wide (easy) regardless of its score.
+    const width = i === START_PAD ? 14 : widthForScore(scores[zone] ?? 5);
 
-  // Lead-in slope up to the first pad.
-  segments.push({ kind: "slope", x0: x, x1: x + LEAD_IN, height0: firstHeight - 4, height1: firstHeight });
-  x += LEAD_IN;
-
-  for (let zone = 1; zone <= 15; zone++) {
-    const height = PAD_HEIGHTS[zone - 1] ?? 28;
-    const width = widthForScore(scores[zone] ?? 5);
-
-    // The flat landing pad for this zone.
     segments.push({ kind: "flat", x0: x, x1: x + width, height, zoneIndex: zone });
-    if (zone === START_ZONE) {
+    if (i === START_PAD) {
       startX = x + width / 2;
     }
     x += width;
 
-    // Slope down/up to the next pad (or a tail after the last).
-    if (zone < 15) {
-      const nextHeight = PAD_HEIGHTS[zone] ?? height;
-      const hasBoulder = BOULDER_GAPS.has(zone);
-      const gap = hasBoulder ? BOULDER_GAP : BASE_GAP;
-      segments.push({ kind: "slope", x0: x, x1: x + gap, height0: height, height1: nextHeight });
-      if (hasBoulder) {
-        const bx = x + gap / 2;
-        const surface = (height + nextHeight) / 2;
-        boulders.push({ x: bx, surface, radius: 6 });
-      }
+    if (i < PAD_COUNT - 1) {
+      const gap = MIN_GAP + Math.round(rand() * GAP_SPREAD);
+      gapCenters.push(x + gap / 2);
+      appendHills(segments, x, x + gap, height, padHeight(i + 1));
       x += gap;
     }
   }
 
-  // Tail slope down off the last pad, then a right margin of rolling hills.
-  const lastHeight = PAD_HEIGHTS[14];
-  segments.push({ kind: "slope", x0: x, x1: x + TAIL, height0: lastHeight, height1: lastHeight - 6 });
+  // Trailing margin of rolling hills off the last pad.
+  appendHills(segments, x, x + TAIL, padHeight(PAD_COUNT - 1), 26);
   x += TAIL;
-  appendHills(segments, x, x + RIGHT_MARGIN, lastHeight - 6, 28);
-  x += RIGHT_MARGIN;
+
+  // Boulders: sample BOULDER_COUNT inter-pad gap centres (slopes only, so a boulder
+  // never sits on a pad), skipping the two gaps flanking the start pad to keep the
+  // start area clear. Even sampling spreads them across the whole surface.
+  const eligible = gapCenters.filter((_, gi) => gi !== START_PAD - 1 && gi !== START_PAD);
+  for (let k = 0; k < BOULDER_COUNT; k++) {
+    const idx = eligible.length <= 1 ? 0 : Math.round((k * (eligible.length - 1)) / (BOULDER_COUNT - 1));
+    const bx = eligible[idx] ?? eligible[0] ?? startX;
+    const radius = 5 + Math.round(rand() * 3); // 5..8 m
+    boulders.push({ x: bx, surface: surfaceYAt(segments, bx), radius });
+  }
 
   return { segments, boulders, minX: 0, maxX: x, startX };
 }
