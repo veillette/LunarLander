@@ -26,7 +26,16 @@ const LunarLanderColors = {
   // ── Sky / space ─────────────────────────────────────────────────────────────
   spaceBackgroundColorProperty: profileColor("spaceBackground", "#05050f", WHITE),
   starColorProperty: profileColor("star", WHITE, "#1a1a2e"),
-  moonColorProperty: profileColor("moon", "#d8d8e0", "#9090a0"),
+
+  // ── Earth (the blue marble hanging over the lunar surface) ────────────────────
+  earthOceanColorProperty: profileColor("earthOcean", "#2f6fb5", "#3a78bd"),
+  earthOceanHighlightColorProperty: profileColor("earthOceanHighlight", "#5aa6e6", "#6aacea"),
+  earthOceanShadowColorProperty: profileColor("earthOceanShadow", "#163a6b", "#244a78"),
+  earthLandColorProperty: profileColor("earthLand", "#5aa05a", "#5aa05a"),
+  earthLandShadowColorProperty: profileColor("earthLandShadow", "#3c7a40", "#3c7a40"),
+  earthCloudColorProperty: profileColor("earthCloud", "#f4f8ff", "#f4f8ff"),
+  earthIceColorProperty: profileColor("earthIce", "#eaf2f8", "#eaf2f8"),
+  earthAtmosphereColorProperty: profileColor("earthAtmosphere", "#8fc2ff", "#8fc2ff"),
 
   // ── Terrain (shaded: sunlit rim → mid → shadowed base) ───────────────────────
   terrainHighlightColorProperty: profileColor("terrainHighlight", "#ddbb7e", "#c4a468"),

@@ -129,7 +129,14 @@ export class TerrainNode extends Node {
     }
   }
 
-  /** Craters and speckle scattered just under the surface, clipped to the body. */
+  /**
+   * Dusty surface detail, all clipped to the terrain body and layered back-to-front:
+   *   1. broad, very faint "mare" patches that give the regolith tonal variation,
+   *   2. 3-D craters (raised lit rim on the sunward side, shadowed bowl, lit far wall),
+   *   3. scattered pebbles (a dark rock with a tiny lit cap),
+   *   4. a dense sprinkle of fine grain.
+   * Sun is from the upper-left, matching the boulders.
+   */
   private static buildTexture(
     terrain: Terrain,
     modelViewTransform: ModelViewTransform2,
@@ -140,32 +147,91 @@ export class TerrainNode extends Node {
     const layer = new Node({ pickable: false, clipArea: clipShape });
     const rand = mulberry32(0x10a5e7);
     const viewWidth = maxX - minX;
-    const count = Math.max(24, Math.round(viewWidth / 26));
 
-    for (let i = 0; i < count; i++) {
+    // Surface Y (view px) directly below a given view x.
+    const surfaceViewY = (x: number) =>
+      modelViewTransform.modelToViewY(terrain.surfaceY(modelViewTransform.viewToModelX(x)));
+
+    // ── 1. Broad mare patches: overlapping low-opacity dark blobs for soft shading ──
+    const mareCount = Math.max(3, Math.round(viewWidth / 220));
+    for (let i = 0; i < mareCount; i++) {
       const x = minX + rand() * viewWidth;
-      // Place the dimple wholly below the surface so it never pokes through the rim.
-      const surfaceY = modelViewTransform.modelToViewY(terrain.surfaceY(modelViewTransform.viewToModelX(x)));
-      const radius = 1.6 + rand() * 5;
-      const y = surfaceY + radius + 3 + rand() * 26;
-      if (rand() < 0.45) {
-        // A small crater: shadowed bowl with a faint lit lower rim.
-        layer.addChild(new Circle(radius, { x, y, fill: LunarLanderColors.terrainCraterColorProperty }));
-        layer.addChild(
-          new Circle(radius, {
-            x,
-            y: y + radius * 0.5,
-            fill: LunarLanderColors.terrainRimColorProperty,
-            opacity: 0.18,
-          }),
-        );
-      } else {
-        // A speckle of dust.
-        layer.addChild(
-          new Circle(radius * 0.5, { x, y, fill: LunarLanderColors.terrainCraterColorProperty, opacity: 0.5 }),
-        );
-      }
+      const r = 50 + rand() * 90;
+      const y = surfaceViewY(x) + r * 0.55 + rand() * 50;
+      // A couple of stacked translucent discs read as a soft, edgeless smudge.
+      layer.addChild(new Circle(r, { x, y, fill: LunarLanderColors.terrainShadowColorProperty, opacity: 0.1 }));
+      layer.addChild(
+        new Circle(r * 0.6, { x, y: y - r * 0.1, fill: LunarLanderColors.terrainShadowColorProperty, opacity: 0.12 }),
+      );
     }
+
+    // ── 2. Craters ──────────────────────────────────────────────────────────────
+    const craterCount = Math.max(14, Math.round(viewWidth / 44));
+    for (let i = 0; i < craterCount; i++) {
+      const x = minX + rand() * viewWidth;
+      const radius = 3 + rand() * 7;
+      // Keep the whole crater (incl. its rim halo) below the surface so it never pokes through.
+      const y = surfaceViewY(x) + radius * 1.4 + 3 + rand() * 24;
+      const fresh = rand() < 0.35;
+
+      // Raised rim catching the sun on the upper-left.
+      layer.addChild(
+        new Circle(radius * 1.2, {
+          x: x - radius * 0.12,
+          y: y - radius * 0.12,
+          fill: LunarLanderColors.terrainHighlightColorProperty,
+          opacity: fresh ? 0.45 : 0.22,
+        }),
+      );
+      // Shadowed bowl.
+      layer.addChild(
+        new Circle(radius, { x, y, fill: LunarLanderColors.terrainCraterColorProperty, opacity: fresh ? 1 : 0.8 }),
+      );
+      // Lit far wall on the lower-right (away from the sun).
+      layer.addChild(
+        new Circle(radius * 0.78, {
+          x: x + radius * 0.3,
+          y: y + radius * 0.32,
+          fill: LunarLanderColors.terrainRimColorProperty,
+          opacity: 0.22,
+        }),
+      );
+    }
+
+    // ── 3. Pebbles: a dark rock with a tiny lit cap on the sunward shoulder ────────
+    const pebbleCount = Math.max(20, Math.round(viewWidth / 34));
+    for (let i = 0; i < pebbleCount; i++) {
+      const x = minX + rand() * viewWidth;
+      const radius = 1.2 + rand() * 2.6;
+      const y = surfaceViewY(x) + radius + 4 + rand() * 28;
+      layer.addChild(new Circle(radius, { x, y, fill: LunarLanderColors.terrainShadowColorProperty, opacity: 0.55 }));
+      layer.addChild(
+        new Circle(radius * 0.5, {
+          x: x - radius * 0.3,
+          y: y - radius * 0.3,
+          fill: LunarLanderColors.terrainHighlightColorProperty,
+          opacity: 0.6,
+        }),
+      );
+    }
+
+    // ── 4. Fine grain: a dense sprinkle of faint dust specks ───────────────────────
+    const grainCount = Math.max(80, Math.round(viewWidth / 8));
+    for (let i = 0; i < grainCount; i++) {
+      const x = minX + rand() * viewWidth;
+      const radius = 0.5 + rand() * 1.4;
+      const y = surfaceViewY(x) + radius + 2 + rand() * 40;
+      const dark = rand() < 0.5;
+      layer.addChild(
+        new Circle(radius, {
+          x,
+          y,
+          fill: dark ? LunarLanderColors.terrainCraterColorProperty : LunarLanderColors.terrainRimColorProperty,
+          opacity: 0.2 + rand() * 0.3,
+        }),
+      );
+    }
+
     return layer;
   }
 
