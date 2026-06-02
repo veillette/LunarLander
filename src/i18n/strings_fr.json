@@ -53,5 +53,34 @@
     "fullThrust": "Activer la poussée maximale",
     "reset": "Réinitialiser / nouvelle partie",
     "pausePlay": "Mettre en pause ou reprendre"
+  },
+  "a11y": {
+    "screenSummary": {
+      "playArea": "Voici une vue de côté d'un alunisseur au-dessus de la surface rocheuse de la Lune, sur fond de ciel étoilé. Des aires d'alunissage plates de valeurs différentes sont réparties sur le terrain, avec des rochers à éviter.",
+      "controlArea": "Les commandes de vol allument le moteur de l'alunisseur et l'inclinent à gauche ou à droite. Les commandes de jeu permettent de mettre en pause, de réinitialiser et d'afficher ou de masquer les flèches de vitesse et d'accélération. Un tableau de bord indique l'altitude, la portée, la vitesse, la poussée et le carburant restant.",
+      "interactionHint": "Augmentez la poussée et inclinez l'alunisseur pour le guider en douceur sur une aire plate."
+    },
+    "currentDetails": {
+      "beforeStart": "La partie n'a pas commencé. Activez le bouton Départ pour commencer à voler.",
+      "inFlight": "Alunisseur en vol. Altitude {{altitude}} mètres, portée horizontale {{range}} mètres. Vitesse horizontale {{vx}} mètres par seconde, vitesse verticale {{vy}} mètres par seconde. Poussée {{thrust}} newtons. Carburant {{fuel}} kilogrammes. Score {{score}}.",
+      "landed": "Alunisseur posé sur la surface. Carburant {{fuel}} kilogrammes. Score {{score}}."
+    },
+    "flightControlsHeading": "Commandes de vol",
+    "flightControlsHelpText": "Pilotez l'alunisseur avec ces boutons, ou avec les touches fléchées et la barre d'espace.",
+    "moreThrustHelpText": "Augmenter la poussée du moteur.",
+    "lessThrustHelpText": "Diminuer la poussée du moteur.",
+    "tiltLeftHelpText": "Faire pivoter l'alunisseur dans le sens antihoraire.",
+    "tiltRightHelpText": "Faire pivoter l'alunisseur dans le sens horaire.",
+    "fullThrustHelpText": "Basculer le moteur entre poussée maximale et arrêt.",
+    "vectorsHelpText": "Afficher ou masquer les flèches de vitesse et d'accélération sur l'alunisseur.",
+    "alerts": {
+      "started": "Décollage. Utilisez la poussée et l'inclinaison pour contrôler votre descente.",
+      "softLanding": "Alunissage en douceur à {{speed}} mètres par seconde. Score {{score}}.",
+      "hardLanding": "Alunissage éprouvant à {{speed}} mètres par seconde. Score {{score}}.",
+      "crash": "Alunissage manqué à {{speed}} mètres par seconde. Fin de partie.",
+      "hitBoulder": "Choc contre un rocher. Un pied est endommagé et du carburant est perdu. Fin de partie.",
+      "lowFuel": "Le carburant est presque épuisé.",
+      "outOfFuel": "Panne sèche. Le moteur s'est arrêté."
+    }
   }
 }

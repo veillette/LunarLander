@@ -8,17 +8,20 @@
  */
 import { Bounds2, Matrix3, Vector2 } from "scenerystack/dot";
 import { Shape } from "scenerystack/kite";
-import { ModelViewTransform2 } from "scenerystack/phetcommon";
+import { ModelViewTransform2, StringUtils } from "scenerystack/phetcommon";
 import { HBox, KeyboardListener, Node } from "scenerystack/scenery";
 import { PlayPauseButton, ResetAllButton } from "scenerystack/scenery-phet";
 import type { ScreenViewOptions } from "scenerystack/sim";
 import { ScreenView } from "scenerystack/sim";
 import type { Tandem } from "scenerystack/tandem";
+import { StringManager } from "../../i18n/StringManager.js";
+import { CrashState } from "../model/CrashState.js";
 import LunarLanderConstants from "../model/LunarLanderConstants.js";
 import type { LunarLanderModel } from "../model/LunarLanderModel.js";
 import { ControlPanel } from "./ControlPanel.js";
 import { ExplosionNode } from "./ExplosionNode.js";
 import { LanderNode } from "./LanderNode.js";
+import { LunarLanderScreenSummaryContent } from "./LunarLanderScreenSummaryContent.js";
 import { LunarLanderSoundView } from "./LunarLanderSoundView.js";
 import { MessageNode } from "./MessageNode.js";
 import { ScoreReadoutNode } from "./ScoreReadoutNode.js";
@@ -40,6 +43,8 @@ const {
   ZOOM_OUT_TOP_FRACTION,
   ZOOM_OUT_MIN,
   CAMERA_DEAD_ZONE_FRACTION,
+  LOW_FUEL_FRACTION,
+  INITIAL_FUEL,
 } = LunarLanderConstants;
 
 export class LunarLanderScreenView extends ScreenView {
@@ -57,7 +62,8 @@ export class LunarLanderScreenView extends ScreenView {
   private cameraFocusX: number;
 
   public constructor(model: LunarLanderModel, providedOptions: LunarLanderScreenViewOptions) {
-    super(providedOptions);
+    // Provide the accessible screen summary (Interactive Description) read by screen readers.
+    super({ ...providedOptions, screenSummaryContent: new LunarLanderScreenSummaryContent(model) });
     this.model = model;
 
     const layoutBounds = this.layoutBounds;
@@ -163,7 +169,74 @@ export class LunarLanderScreenView extends ScreenView {
       startOverlay,
     ];
 
+    // Nest the interactive nodes under the ScreenView's "Control Area" landmark
+    // so the PDOM gets a sensible heading hierarchy (the Flight Controls heading
+    // sits below the Control Area heading) instead of a flat list of <h1>s. The
+    // Start button comes first since it's the entry point before play begins.
+    this.pdomControlAreaNode.pdomOrder = [startOverlay, throttleControl, controlPanel, bottomControls];
+
     this.addKeyboardControls(model);
+    this.addAccessibleAlerts(model);
+  }
+
+  /**
+   * Announce one-shot state changes to screen readers via accessible responses
+   * (aria-live). These complement the live "current details" in the screen
+   * summary by speaking up the moment something important happens.
+   *
+   * All links are lazy and only fire on transitions that occur during play, so
+   * they stay silent during a reset (which moves the same Properties backwards).
+   */
+  private addAccessibleAlerts(model: LunarLanderModel): void {
+    const alerts = StringManager.getInstance().getA11yStrings().alerts;
+
+    // Game start (Start button or first liftoff).
+    model.hasStartedProperty.lazyLink((started) => {
+      if (started) {
+        this.addAccessibleResponse(alerts.startedStringProperty.value);
+      }
+    });
+
+    // Landing outcome. crashState only advances out of IN_FLIGHT during play; a
+    // reset moves it back to IN_FLIGHT, which we deliberately ignore.
+    model.crashStateProperty.lazyLink((crashState) => {
+      if (crashState === CrashState.IN_FLIGHT) {
+        return;
+      }
+      if (model.hitBoulderProperty.value) {
+        this.addAccessibleResponse(alerts.hitBoulderStringProperty.value);
+        return;
+      }
+      const pattern =
+        crashState === CrashState.SOFT_LANDED
+          ? alerts.softLandingStringProperty.value
+          : crashState === CrashState.HARD_LANDED
+            ? alerts.hardLandingStringProperty.value
+            : alerts.crashStringProperty.value;
+      this.addAccessibleResponse(
+        StringUtils.fillIn(pattern, {
+          speed: model.landingSpeedProperty.value.toFixed(1),
+          score: model.scoreKeeper.scoreProperty.value,
+        }),
+      );
+    });
+
+    // Fuel warnings. A crash/boulder zeroes the tank instantly (just before
+    // crashState flips), so the guards below keep those from masquerading as a
+    // low-fuel/out-of-fuel warning: a genuine low-fuel crossing still leaves
+    // fuel in the tank, and a genuine empty-tank is reached from an already-low
+    // tank rather than jumping straight from a healthy one.
+    const lowFuelThreshold = LOW_FUEL_FRACTION * INITIAL_FUEL;
+    model.lowFuelProperty.lazyLink((low) => {
+      if (low && model.lander.remainingFuelProperty.value > 0) {
+        this.addAccessibleResponse(alerts.lowFuelStringProperty.value);
+      }
+    });
+    model.lander.remainingFuelProperty.lazyLink((fuel, previousFuel) => {
+      if (fuel <= 0 && previousFuel > 0 && previousFuel <= lowFuelThreshold) {
+        this.addAccessibleResponse(alerts.outOfFuelStringProperty.value);
+      }
+    });
   }
 
   private addKeyboardControls(model: LunarLanderModel): void {

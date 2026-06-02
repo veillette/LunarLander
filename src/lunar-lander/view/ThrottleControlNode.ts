@@ -18,6 +18,7 @@ const HOLD_INTERVAL = 120; // ms between repeats while held
 export class ThrottleControlNode extends VBox {
   public constructor(model: LunarLanderModel) {
     const controls = StringManager.getInstance().getControlStrings();
+    const a11y = StringManager.getInstance().getA11yStrings();
 
     const arrowOptions = {
       baseColor: LunarLanderColors.controlButtonColorProperty,
@@ -31,18 +32,22 @@ export class ThrottleControlNode extends VBox {
     const thrustUp = new ArrowButton("up", () => model.increaseThrust(), {
       ...arrowOptions,
       accessibleName: controls.moreThrustStringProperty,
+      accessibleHelpText: a11y.moreThrustHelpTextStringProperty,
     });
     const thrustDown = new ArrowButton("down", () => model.decreaseThrust(), {
       ...arrowOptions,
       accessibleName: controls.lessThrustStringProperty,
+      accessibleHelpText: a11y.lessThrustHelpTextStringProperty,
     });
     const tiltLeft = new ArrowButton("left", () => model.tiltLeft(), {
       ...arrowOptions,
       accessibleName: controls.tiltLeftStringProperty,
+      accessibleHelpText: a11y.tiltLeftHelpTextStringProperty,
     });
     const tiltRight = new ArrowButton("right", () => model.tiltRight(), {
       ...arrowOptions,
       accessibleName: controls.tiltRightStringProperty,
+      accessibleHelpText: a11y.tiltRightHelpTextStringProperty,
     });
 
     const thrustColumn = new VBox({ spacing: 6, children: [thrustUp, thrustDown] });
@@ -55,10 +60,19 @@ export class ThrottleControlNode extends VBox {
       xMargin: 12,
       yMargin: 6,
       accessibleName: controls.fullThrustStringProperty,
+      accessibleHelpText: a11y.fullThrustHelpTextStringProperty,
       listener: () => model.toggleFullThrust(),
     });
 
-    super({ spacing: 8, align: "center", children: [row, fullThrust] });
+    // Group the flight controls under an accessible heading so screen-reader
+    // users find them as a labeled region with the buttons nested beneath.
+    super({
+      spacing: 8,
+      align: "center",
+      children: [row, fullThrust],
+      accessibleHeading: a11y.flightControlsHeadingStringProperty,
+      accessibleHelpText: a11y.flightControlsHelpTextStringProperty,
+    });
   }
 
   /** A small upward-pointing flame (outer plume / mid / hot core), in view pixels. */

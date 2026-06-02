@@ -53,5 +53,34 @@
     "fullThrust": "Toggle full thrust",
     "reset": "Reset / new game",
     "pausePlay": "Pause or play"
+  },
+  "a11y": {
+    "screenSummary": {
+      "playArea": "This is a side view of a lunar lander above the rocky surface of the Moon, set against a starry sky. Flat landing pads worth different points are scattered along the terrain, with boulders to steer clear of.",
+      "controlArea": "Flight controls fire the lander's engine and tilt it left or right. Game controls let you pause, reset, and show or hide the velocity and acceleration arrows. An instrument panel reports altitude, range, velocity, thrust, and remaining fuel.",
+      "interactionHint": "Increase thrust and tilt the lander to steer gently onto a flat landing pad."
+    },
+    "currentDetails": {
+      "beforeStart": "The game has not started. Activate the Start button to begin flying.",
+      "inFlight": "Lander in flight. Altitude {{altitude}} meters, horizontal range {{range}} meters. Horizontal velocity {{vx}} meters per second, vertical velocity {{vy}} meters per second. Thrust {{thrust}} newtons. Fuel {{fuel}} kilograms. Score {{score}}.",
+      "landed": "Lander on the surface. Fuel {{fuel}} kilograms. Score {{score}}."
+    },
+    "flightControlsHeading": "Flight Controls",
+    "flightControlsHelpText": "Fly the lander with these buttons, or with the keyboard arrow keys and space bar.",
+    "moreThrustHelpText": "Increase the engine thrust.",
+    "lessThrustHelpText": "Decrease the engine thrust.",
+    "tiltLeftHelpText": "Rotate the lander counterclockwise.",
+    "tiltRightHelpText": "Rotate the lander clockwise.",
+    "fullThrustHelpText": "Toggle the engine between full thrust and off.",
+    "vectorsHelpText": "Show or hide the velocity and acceleration arrows on the lander.",
+    "alerts": {
+      "started": "Liftoff. Use thrust and tilt to control your descent.",
+      "softLanding": "Soft landing at {{speed}} meters per second. Score {{score}}.",
+      "hardLanding": "Hard landing at {{speed}} meters per second. Score {{score}}.",
+      "crash": "Crash landing at {{speed}} meters per second. Game over.",
+      "hitBoulder": "Hit a boulder. A leg is damaged and fuel is lost. Game over.",
+      "lowFuel": "Fuel is running low.",
+      "outOfFuel": "Out of fuel. The engine has shut down."
+    }
   }
 }

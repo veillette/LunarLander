@@ -79,4 +79,9 @@ export class StringManager {
   public getKeyboardHelpStrings() {
     return stringProperties.keyboardHelp;
   }
+
+  /** Accessibility (Interactive Description) strings: screen summary, alerts, control help text. */
+  public getA11yStrings() {
+    return stringProperties.a11y;
+  }
 }

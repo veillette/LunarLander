@@ -20,6 +20,7 @@ const TOGGLE_BUTTON_SIZE = 44;
 export class ControlPanel extends Panel {
   public constructor(model: LunarLanderModel) {
     const controls = StringManager.getInstance().getControlStrings();
+    const a11y = StringManager.getInstance().getA11yStrings();
 
     // Eye open/closed → show/hide the velocity & acceleration vectors. Scaled to
     // half the base toggle size to keep it unobtrusive now that it stands alone.
@@ -29,6 +30,7 @@ export class ControlPanel extends Panel {
       minHeight: TOGGLE_BUTTON_SIZE,
       scale: 0.5,
       accessibleName: controls.vectorsStringProperty,
+      accessibleHelpText: a11y.vectorsHelpTextStringProperty,
     });
 
     const content = new VBox({
