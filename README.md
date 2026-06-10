@@ -15,7 +15,7 @@ English and French localization and a projector (light) color profile.
 
 ```bash
 npm install
-npm run icons    # generate PNG icons from icons/icon.svg
+npm run icons    # generate PNG icons from public/icons/icon.svg
 npm start        # dev server → http://localhost:5173
 ```
 
@@ -57,7 +57,7 @@ npm run sanity
 | `npm run check` | TypeScript type check (`src` + `scripts`) |
 | `npm run lint` | Biome lint check |
 | `npm run fix` | Lint + auto-fix + format |
-| `npm run icons` | Generate PNG icons from `icons/icon.svg` |
+| `npm run icons` | Generate PNG icons from `public/icons/icon.svg` |
 | `npm run sanity` | Headless physics/landing/scoring checks (tsx) |
 | `npm run clean` | Remove `dist/` |
 
@@ -89,7 +89,7 @@ src/
       StartOverlayNode HelpDialog                 # overlays
       LunarLanderSoundView.ts                     # synthesized tambo sound
 scripts/
-  generate-icons.ts                               # PNG/ICO from icons/icon.svg
+  generate-icons.ts                               # PNG/ICO from public/icons/icon.svg
   sanity/physics-sanity.ts  shims.ts              # headless model checks
 ```
 

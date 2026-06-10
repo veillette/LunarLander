@@ -3,14 +3,22 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Lunar Lander — pilot a lunar module to a soft landing. A SceneryStack port of the PhET Flash simulation.",
+  "description": "SceneryStack port of the classic PhET Flash 'Lunar Lander' simulation. Pilot a lunar module to a soft landing by managing thrust and tilt against gravity.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OpenPhysics/LunarLander.git"
+  },
   "keywords": [
-    "physics",
+    "lunar-lander",
     "simulation",
-    "scenerystack",
-    "phet",
-    "lunar-lander"
+    "SceneryStack",
+    "interactive",
+    "physics",
+    "gravity",
+    "kinematics",
+    "education",
+    "pwa"
   ],
   "scripts": {
     "start": "vite",
@@ -35,7 +43,7 @@
     "sharp": "^0.34.5",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
-    "vite": "^8.0.14",
+    "vite": "^8.0.16",
     "vite-plugin-pwa": "^1.3.0"
   },
   "engines": {
