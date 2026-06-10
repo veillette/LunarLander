@@ -51,6 +51,7 @@ init({
   // enables Interactive Highlights by default (toggled on in main.ts preferences).
   supportsInteractiveDescription: true,
 
-  // Enables the "Projector Mode" color profile (light theme) alongside the dark default.
+  // Enables the "Projector Mode" color profile alongside the default dark theme.
+  // Required when supportsProjectorMode: true is used in PreferencesModel (src/main.ts).
   colorProfiles: ["default", "projector"],
 });
