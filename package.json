@@ -31,7 +31,8 @@
     "check": "tsc --noEmit && tsc -p tsconfig.scripts.json --noEmit",
     "icons": "tsx scripts/generate-icons.ts",
     "sanity": "tsx scripts/sanity/physics-sanity.ts",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "scenerystack": "^3.0.0"

@@ -1,12 +1,28 @@
 #!/bin/sh
-# Pre-commit hook: run Biome lint + format check before each commit.
+# Pre-commit hook: auto-format and lint with Biome.
+# Aborts the commit if unfixable lint errors remain after auto-fix.
 #
-# Install once after cloning:
-#   git config core.hooksPath .githooks
+# Activated by: npm install (prepare script sets core.hooksPath)
 
-set -e
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(ts|js|json|html)$')
 
-echo "Running Biome check..."
-npx biome check --no-errors-on-unmatched .
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
 
-echo "Pre-commit checks passed."
+echo "Running Biome fix on staged files..."
+
+npm run fix --silent -- --no-errors-on-unmatched
+
+STATUS=$?
+
+echo "$STAGED" | xargs git add
+
+if [ $STATUS -ne 0 ]; then
+  echo ""
+  echo "Biome reported errors that could not be auto-fixed."
+  echo "Please fix the issues above and try committing again."
+  exit 1
+fi
+
+exit 0
