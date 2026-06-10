@@ -1,109 +1,35 @@
-# CLAUDE.md — Project Context for Claude Code
+# CLAUDE.md — Lunar Lander
 
-## Project: Sim Template
+Sim-specific context for AI assistants. General SceneryStack guidance: [OpenPhysics/.github/CLAUDE.md](https://github.com/OpenPhysics/.github/blob/main/CLAUDE.md).
 
-A single-screen [SceneryStack](https://scenerystack.org/) simulation template.
-Replace "Sim Template" / "SimTemplate" / "sim-template" with your simulation's name throughout.
+## Project
 
-## Tech Stack
+SceneryStack port of the classic PhET Flash Lunar Lander. Pilot the module with thrust and tilt; score zone landings; avoid boulders and high-speed crashes.
 
-| Tool | Version | Notes |
-|---|---|---|
-| SceneryStack | ^3.0.0 | Simulation framework (PhET-derived) |
-| Vite | ^8 | Build tool and dev server |
-| TypeScript | ^6 | `erasableSyntaxOnly` — no `enum` or `namespace` |
-| Biome | ^2.4 | Linting + formatting (not ESLint, not Prettier) |
-| vite-plugin-pwa | ^1 | PWA / offline / installable |
+## Key files
 
-## !! Critical: SceneryStack Import Order !!
-
-`src/main.ts` must have `import "./brand.js"` as its **very first import**. This
-triggers the full bootstrap chain:
-
-```
-brand.ts → splash.ts → assert.ts → init.ts
-```
-
-**Never reorder these imports.** SceneryStack will fail silently or throw cryptic
-errors if the chain is broken.
-
-## Key Files
-
-| File | Purpose |
+| Area | Files |
 |---|---|
-| `src/init.ts` | Sim name, version, locales — START of chain |
-| `src/assert.ts` | Enables runtime assertions |
-| `src/splash.ts` | Shows splash screen while loading |
-| `src/brand.ts` | Registers brand (logo, copyright, links) |
-| `src/main.ts` | Entry point — imports brand.js first |
-| `src/SimColors.ts` | All dynamic colors (`ProfileColorProperty`) |
-| `src/SimNamespace.ts` | Namespace for scoping color property names |
-| `src/i18n/StringManager.ts` | Singleton localized string accessor |
-| `src/i18n/strings_en.json` | English strings (source of truth for keys) |
-| `src/i18n/strings_fr.json` | French strings (must have identical keys) |
-| `src/sim-screen/SimScreen.ts` | Screen wrapper |
-| `src/sim-screen/model/SimModel.ts` | Simulation state & logic |
-| `src/sim-screen/view/SimScreenView.ts` | Visual nodes & layout |
+| Model | `LunarLanderModel.ts`, `Lander.ts`, `Terrain.ts`, `TerrainData.ts`, `ScoreKeeper.ts`, `CrashState.ts` |
+| Constants | `LunarLanderConstants.ts` — physics, layout, scoring (matches original ActionScript) |
+| View | `LunarLanderScreenView.ts`, `LanderNode`, `TerrainNode`, `ControlPanel`, instrument nodes |
+| Sound | `LunarLanderSoundView.ts` — synthesized tambo oscillators + noise burst |
+| Overlays | `StartOverlayNode`, help dialog, on-screen throttle controls |
 
-## Conventions
+## Physics (port fidelity)
 
-- **No `enum`** — use `const SomeEnum = { ... } as const` instead (TS6 `erasableSyntaxOnly`)
-- **No `namespace`** — use modules or classes with static members
-- **`import type`** required for type-only imports (`verbatimModuleSyntax`)
-- **Formatter**: 2-space indent, 120-char line width, double quotes, always semicolons
-- **Colors** always go in `SimColors.ts` — never hardcode hex values in view files
-- **Strings** always go in the JSON files — never hardcode display text in view files
-- **Positioning** always uses `this.layoutBounds` — never magic pixel values
+- Lunar gravity `g = 1.6 m/s²`; empty mass `6839 kg`; max thrust `45000 N`; Tsiolkovsky fuel burn
+- Fixed `40 ms` integration timestep with real-frame accumulation (matches original tuning)
+- Soft landing: < 2 m/s and roughly level; hard: < 6 m/s; crash above that
 
-## Common Commands
+## Terrain
+
+Hand-designed data in `TerrainData.ts` — flat pads (width inversely related to point value), slopes, boulders. Not procedural.
+
+## Sim-specific commands
 
 ```bash
-npm start          # dev server (http://localhost:5173)
-npm run build      # type-check + production build
-npm run fix        # biome auto-fix (format + lint)
-npm run check      # tsc type check only
-npm run icons      # regenerate PNG icons from public/icons/icon.svg
+npm run sanity    # Headless physics/landing/scoring checks (tsx, no browser)
 ```
 
-## SceneryStack Module Paths
-
-```
-scenerystack/sim          Sim, Screen, ScreenView, ScreenViewOptions, PreferencesModel, onReadyToLaunch
-scenerystack/axon         Property, BooleanProperty, NumberProperty, StringProperty, TReadOnlyProperty
-scenerystack/scenery      Node, Rectangle, Circle, Text, Image, ProfileColorProperty
-scenerystack/scenery-phet ResetAllButton, ArrowNode, NumberDisplay, MagnifyingGlassZoomButtonGroup
-scenerystack/dot          Vector2, Dimension2, Range, Bounds2
-scenerystack/tandem       Tandem
-scenerystack/phet-core    Namespace, optionize
-scenerystack/chipper      LocalizedString
-scenerystack/joist        TModel
-scenerystack/init         init, madeWithSceneryStackSplashDataURI
-scenerystack/brand        brand, TBrand, madeWithSceneryStackOnDark, madeWithSceneryStackOnLight
-scenerystack/assert       enableAssert
-scenerystack/splash       (side-effect import)
-```
-
-## Adding Simulation Content
-
-1. **Model** — add `Property<T>` fields to `SimModel`, call `.reset()` on each in `reset()`
-2. **View** — create `Node` subclasses, add them in `SimScreenView`, link to model:
-   ```typescript
-   model.myValueProperty.link(value => { myNode.visible = value > 0; });
-   ```
-3. **Colors** — add `ProfileColorProperty` entries to `SimColors.ts`
-4. **Strings** — add keys to `strings_en.json` + all locale files, expose in `StringManager`
-5. **Preferences** — extend `PreferencesModel` options in `src/main.ts`
-
-## TypeScript 6 Notes
-
-- `erasableSyntaxOnly` rejects `enum` and `namespace` (they generate runtime JS)
-- `verbatimModuleSyntax` requires explicit `import type` for type-only symbols
-- `noUncheckedSideEffectImports` requires side-effect imports to be in package exports  
-  (`scenerystack/splash` is exported, so it's fine — if you see an error, check the package version)
-
-## CI
-
-GitHub Actions runs on every push/PR to `main`:
-1. `npm run check` (TypeScript)
-2. `npm run lint` (Biome)
-3. `npm run icons && npm run build` (production artifact uploaded)
+Sanity scripts: `scripts/sanity/physics-sanity.ts`, `scripts/sanity/shims.ts`.
