@@ -98,7 +98,7 @@ scripts/
 
 ## License
 
-MIT. The original PhET simulation is Copyright © University of Colorado; this is an independent reimplementation.
+GNU Affero General Public License v3.0 — see [OpenPhysics org license](https://github.com/OpenPhysics/.github/blob/main/LICENSE). The original PhET simulation is Copyright © University of Colorado; this is an independent reimplementation.
 
 ## Contributing
 
