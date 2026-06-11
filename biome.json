@@ -159,17 +159,6 @@
           }
         }
       }
-    },
-    {
-      "includes": ["scripts/sanity/shims.ts"],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noExplicitAny": "off",
-            "noEmptyBlockStatements": "off"
-          }
-        }
-      }
     }
   ],
   "javascript": {

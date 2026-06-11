@@ -30,7 +30,6 @@
     "fix": "biome check --write .",
     "check": "tsc --noEmit && tsc -p tsconfig.scripts.json --noEmit",
     "icons": "tsx scripts/generate-icons.ts",
-    "sanity": "tsx scripts/sanity/physics-sanity.ts",
     "clean": "rm -rf dist",
     "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true"
   },
