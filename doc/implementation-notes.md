@@ -43,7 +43,7 @@ Key physical quantities:
 - Soft landing threshold: < 2 m/s, level attitude
 - Hard landing threshold: < 6 m/s
 
-Constants are centralized in `LunarLanderConstants.ts`. Headless sanity checks live in `scripts/sanity/`.
+Constants are centralized in `LunarLanderConstants.ts`.
 
 ## View Components
 

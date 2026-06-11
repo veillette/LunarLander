@@ -25,11 +25,3 @@ SceneryStack port of the classic PhET Flash Lunar Lander. Pilot the module with 
 ## Terrain
 
 Hand-designed data in `TerrainData.ts` — flat pads (width inversely related to point value), slopes, boulders. Not procedural.
-
-## Sim-specific commands
-
-```bash
-npm run sanity    # Headless physics/landing/scoring checks (tsx, no browser)
-```
-
-Sanity scripts: `scripts/sanity/physics-sanity.ts`, `scripts/sanity/shims.ts`.
