@@ -11,15 +11,7 @@ lunar module to a soft landing by managing thrust and tilt while fuel runs down 
 - Synthesized tambo sound effects and hand-designed terrain with boulders
 - English and French UI, projector color profile, and PWA support
 
-## Quick Start
-
-```bash
-npm install
-npm run icons    # generate PNG icons from public/icons/icon.svg
-npm start        # dev server → http://localhost:5173
-```
-
-## How to play
+### How to Play
 
 | Control | Keyboard | On-screen |
 |---|---|---|
@@ -33,13 +25,21 @@ Land gently (under 2 m/s and roughly level) for a **soft landing** plus a bonus;
 under 6 m/s is a **hard landing**; faster than that is a crash. Each flat zone
 scores once — narrower zones are worth more. Don't touch the boulders.
 
-## Physics
+### Physics
 
 The model reproduces the original equations and constants exactly:
 lunar gravity `g = 1.6 m/s²`, empty mass `6839 kg`, descent fuel `816.5 kg`,
 max thrust `45000 N`, specific impulse `3050 m/s` (Tsiolkovsky rocket equation for
 fuel burn). It integrates on a fixed `40 ms` timestep with real-frame accumulation,
 so trajectories match the tuned original regardless of frame rate.
+
+## Quick Start
+
+```bash
+npm install
+npm run icons    # generate PNG icons from public/icons/icon.svg
+npm start        # dev server → http://localhost:5173
+```
 
 ## Scripts
 
@@ -65,7 +65,7 @@ so trajectories match the tuned original regardless of frame rate.
 | [Biome](https://biomejs.dev/) | ^2.4 | Linting + formatting |
 | [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) | ^1 | PWA + service worker |
 
-## Project Structure
+### Project Structure
 
 ```
 src/
