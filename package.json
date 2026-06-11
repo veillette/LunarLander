@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "description": "SceneryStack port of the classic PhET Flash 'Lunar Lander' simulation. Pilot a lunar module to a soft landing by managing thrust and tilt against gravity.",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
     "url": "https://github.com/OpenPhysics/LunarLander.git"
