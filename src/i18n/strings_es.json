@@ -1,0 +1,86 @@
+{
+  "title": "Módulo Lunar",
+  "screens": {
+    "lunarLander": "Módulo Lunar"
+  },
+  "readouts": {
+    "altitude": "altitud(m)",
+    "range": "alcance(m)",
+    "vX": "v_x(m/s)",
+    "vY": "v_y(m/s)",
+    "thrust": "empuje(N)",
+    "fuel": "combustible(kg)"
+  },
+  "fuelGauge": {
+    "full": "L",
+    "empty": "V"
+  },
+  "controls": {
+    "vectors": "Vectores",
+    "reset": "Reiniciar",
+    "start": "Iniciar",
+    "paused": "En pausa",
+    "moreThrust": "Más empuje",
+    "lessThrust": "Menos empuje",
+    "tiltLeft": "Inclinar a la izquierda",
+    "tiltRight": "Inclinar a la derecha",
+    "fullThrust": "Empuje máximo"
+  },
+  "score": {
+    "scoreColon": "puntuación:",
+    "softLandingsColon": "aterrizajes suaves:",
+    "hardLandingsColon": "aterrizajes bruscos:"
+  },
+  "messages": {
+    "landingSpeedEq": "Velocidad de aterrizaje = ",
+    "softLanding": "Aterrizaje suave.",
+    "hardLanding": "Aterrizaje brusco.",
+    "crash1": "Aterrizaje forzoso, patas dañadas.",
+    "crash2": "Aterrizaje forzoso, tripulación muerta.",
+    "hitBoulder": "Chocaste con una roca. Pata dañada. Combustible perdido."
+  },
+  "help": {
+    "instructions": "Aterriza en tantas zonas planas diferentes como puedas antes de que se agote el combustible.<br>Después de aterrizar, despega de nuevo aumentando el empuje.<br>No hay crédito por aterrizar en la misma zona más de una vez.<br>Puntos extra por aterrizajes suaves (v < 2 m/s).<br>Fin del juego si chocas con una roca o aterrizas bruscamente (v > 6 m/s).",
+    "upDownThrust": "Flechas arriba / abajo: más / menos empuje",
+    "leftRightTilt": "Flechas izquierda / derecha: inclinar el módulo",
+    "spaceFullThrust": "Barra espaciadora: activar/desactivar empuje máximo"
+  },
+  "keyboardHelp": {
+    "flightControlsHeading": "Controles de vuelo",
+    "gameControlsHeading": "Controles del juego",
+    "thrust": "Aumentar / disminuir el empuje",
+    "tilt": "Inclinar a la izquierda / derecha",
+    "fullThrust": "Activar/desactivar empuje máximo",
+    "reset": "Reiniciar / nuevo juego",
+    "pausePlay": "Pausar o reproducir"
+  },
+  "a11y": {
+    "screenSummary": {
+      "playArea": "Esta es una vista lateral de un módulo lunar sobre la rocosa superficie de la Luna, contra un cielo estrellado. A lo largo del terreno hay plataformas de aterrizaje planas que valen diferentes puntos, con rocas que hay que evitar.",
+      "controlArea": "Los controles de vuelo encienden el motor del módulo y lo inclinan a la izquierda o a la derecha. Los controles del juego te permiten pausar, reiniciar y mostrar u ocultar las flechas de velocidad y aceleración. Un panel de instrumentos informa de la altitud, el alcance, la velocidad, el empuje y el combustible restante.",
+      "interactionHint": "Aumenta el empuje e inclina el módulo para guiarlo suavemente hacia una plataforma de aterrizaje plana."
+    },
+    "currentDetails": {
+      "beforeStart": "El juego no ha comenzado. Activa el botón Iniciar para empezar a volar.",
+      "inFlight": "Módulo en vuelo. Altitud {{altitude}} metros, alcance horizontal {{range}} metros. Velocidad horizontal {{vx}} metros por segundo, velocidad vertical {{vy}} metros por segundo. Empuje {{thrust}} newtons. Combustible {{fuel}} kilogramos. Puntuación {{score}}.",
+      "landed": "Módulo en la superficie. Combustible {{fuel}} kilogramos. Puntuación {{score}}."
+    },
+    "flightControlsHeading": "Controles de vuelo",
+    "flightControlsHelpText": "Pilota el módulo con estos botones, o con las teclas de flecha y la barra espaciadora del teclado.",
+    "moreThrustHelpText": "Aumenta el empuje del motor.",
+    "lessThrustHelpText": "Disminuye el empuje del motor.",
+    "tiltLeftHelpText": "Gira el módulo en sentido antihorario.",
+    "tiltRightHelpText": "Gira el módulo en sentido horario.",
+    "fullThrustHelpText": "Alterna el motor entre empuje máximo y apagado.",
+    "vectorsHelpText": "Muestra u oculta las flechas de velocidad y aceleración en el módulo.",
+    "alerts": {
+      "started": "Despegue. Usa el empuje y la inclinación para controlar tu descenso.",
+      "softLanding": "Aterrizaje suave a {{speed}} metros por segundo. Puntuación {{score}}.",
+      "hardLanding": "Aterrizaje brusco a {{speed}} metros por segundo. Puntuación {{score}}.",
+      "crash": "Aterrizaje forzoso a {{speed}} metros por segundo. Fin del juego.",
+      "hitBoulder": "Chocaste con una roca. Una pata está dañada y se perdió combustible. Fin del juego.",
+      "lowFuel": "El combustible se está agotando.",
+      "outOfFuel": "Sin combustible. El motor se ha apagado."
+    }
+  }
+}
