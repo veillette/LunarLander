@@ -8,12 +8,12 @@
  * Never hardcode hex values in view files — add an entry here instead.
  */
 import { Color, ProfileColorProperty } from "scenerystack/scenery";
-import lunarLander from "./LunarLanderNamespace.js";
+import LunarLanderNamespace from "./LunarLanderNamespace.js";
 
 const { BLACK, WHITE } = Color;
 
 function profileColor(name: string, def: Color | string, projector: Color | string): ProfileColorProperty {
-  return new ProfileColorProperty(lunarLander, name, { default: def, projector });
+  return new ProfileColorProperty(LunarLanderNamespace, name, { default: def, projector });
 }
 
 // Neutral panel fills that contrast with either theme.
@@ -90,7 +90,5 @@ const LunarLanderColors = {
   // ── Overlays ────────────────────────────────────────────────────────────────
   overlayFillProperty: profileColor("overlayFill", "rgba(5,5,15,0.82)", "rgba(255,255,255,0.85)"),
 };
-
-lunarLander.register("LunarLanderColors", LunarLanderColors);
 
 export default LunarLanderColors;

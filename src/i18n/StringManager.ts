@@ -11,7 +11,6 @@
  */
 import type { ReadOnlyProperty } from "scenerystack/axon";
 import { LocalizedString } from "scenerystack/chipper";
-import lunarLander from "../LunarLanderNamespace.js";
 import stringsEn from "./strings_en.json";
 import stringsEs from "./strings_es.json";
 import stringsFr from "./strings_fr.json";
@@ -39,7 +38,6 @@ export class StringManager {
   public static getInstance(): StringManager {
     if (StringManager.instance === null) {
       StringManager.instance = new StringManager();
-      lunarLander.register("StringManager", StringManager.instance);
     }
     return StringManager.instance;
   }
