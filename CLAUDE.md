@@ -16,6 +16,14 @@ SceneryStack port of the classic PhET Flash Lunar Lander. Pilot the module with 
 | Sound | `LunarLanderSoundView.ts` — synthesized tambo oscillators + noise burst |
 | Overlays | `StartOverlayNode`, help dialog, on-screen throttle controls |
 
+## Accessibility
+
+Conforms to the shared [OpenPhysics accessibility convention](https://github.com/OpenPhysics/OpenPhysics/blob/main/ACCESSIBILITY.md):
+`LunarLanderScreenView` registers `LunarLanderScreenSummaryContent` (structured regions + live
+current-details) via the `screenSummaryContent` super-option, orders the PDOM through
+`pdomControlAreaNode`, and exposes a11y strings via `StringManager.getA11yStrings()`. This
+sim's `ScreenSummaryContent` is the reference example for live model-derived current-details.
+
 ## Physics (port fidelity)
 
 - Lunar gravity `g = 1.6 m/s²`; empty mass `6839 kg`; max thrust `45000 N`; Tsiolkovsky fuel burn
