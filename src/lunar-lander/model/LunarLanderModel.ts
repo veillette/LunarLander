@@ -19,6 +19,8 @@ import {
 } from "scenerystack/axon";
 import { Vector2 } from "scenerystack/dot";
 import type { TModel } from "scenerystack/joist";
+import type { LunarLanderPreferencesModel } from "../../preferences/LunarLanderPreferencesModel.js";
+import lunarLanderQueryParameters from "../../preferences/lunarLanderQueryParameters.js";
 import { CrashState } from "./CrashState.js";
 import { Lander } from "./Lander.js";
 import LunarLanderConstants from "./LunarLanderConstants.js";
@@ -56,7 +58,7 @@ export class LunarLanderModel implements TModel {
   public readonly isPlayingProperty = new BooleanProperty(false);
   public readonly hasStartedProperty = new BooleanProperty(false);
 
-  public readonly showVectorsProperty = new BooleanProperty(true);
+  public readonly showVectorsProperty = new BooleanProperty(lunarLanderQueryParameters.showVectors);
 
   public readonly lowFuelProperty: TReadOnlyProperty<boolean>;
 
@@ -72,7 +74,11 @@ export class LunarLanderModel implements TModel {
 
   private timeAccumulator = 0;
 
-  public constructor() {
+  private readonly preferences: LunarLanderPreferencesModel;
+
+  public constructor(preferences: LunarLanderPreferencesModel) {
+    this.preferences = preferences;
+    this.showVectorsProperty.value = preferences.showVectorsProperty.value;
     this.terrain = new Terrain();
 
     const startX = this.terrain.startX;
@@ -263,6 +269,7 @@ export class LunarLanderModel implements TModel {
     this.isPlayingProperty.reset();
     this.hasStartedProperty.reset();
     this.showVectorsProperty.reset();
+    this.showVectorsProperty.value = this.preferences.showVectorsProperty.value;
     this.timeAccumulator = 0;
   }
 }

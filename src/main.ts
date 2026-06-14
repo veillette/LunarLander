@@ -20,12 +20,18 @@ import { Tandem } from "scenerystack/tandem";
 import { StringManager } from "./i18n/StringManager.js";
 import LunarLanderColors from "./LunarLanderColors.js";
 import { LunarLanderScreen } from "./lunar-lander/LunarLanderScreen.js";
+import { LunarLanderPreferencesModel } from "./preferences/LunarLanderPreferencesModel.js";
+import { LunarLanderPreferencesNode } from "./preferences/LunarLanderPreferencesNode.js";
 
 onReadyToLaunch(() => {
   const stringManager = StringManager.getInstance();
 
+  // Simulation-specific preferences; initial values come from lunarLanderQueryParameters.
+  const lunarLanderPreferences = new LunarLanderPreferencesModel(Tandem.ROOT.createTandem("preferences"));
+
   const screens = [
     new LunarLanderScreen({
+      preferences: lunarLanderPreferences,
       // The screen name Property updates automatically when the locale changes
       name: stringManager.getScreenNames().lunarLanderStringProperty,
       tandem: Tandem.ROOT.createTandem("lunarLanderScreen"),
@@ -40,6 +46,13 @@ onReadyToLaunch(() => {
         supportsProjectorMode: true,
         // Enables keyboard-navigation highlight outlines
         supportsInteractiveHighlights: true,
+      },
+      simulationOptions: {
+        customPreferences: [
+          {
+            createContent: (tandem: Tandem) => new LunarLanderPreferencesNode(lunarLanderPreferences, tandem),
+          },
+        ],
       },
       localizationOptions: {
         // Adds a language picker in Preferences → Language

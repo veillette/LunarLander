@@ -82,5 +82,9 @@
       "lowFuel": "El combustible se está agotando.",
       "outOfFuel": "Sin combustible. El motor se ha apagado."
     }
+  },
+  "preferences": {
+    "title": "Simulación",
+    "showVectors": "Mostrar vectores"
   }
 }

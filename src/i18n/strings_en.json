@@ -82,5 +82,9 @@
       "lowFuel": "Fuel is running low.",
       "outOfFuel": "Out of fuel. The engine has shut down."
     }
+  },
+  "preferences": {
+    "title": "Simulation",
+    "showVectors": "Show Vectors"
   }
 }

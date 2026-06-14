@@ -8,16 +8,17 @@ import type { ScreenOptions } from "scenerystack/sim";
 import { Screen } from "scenerystack/sim";
 import type { Tandem } from "scenerystack/tandem";
 import LunarLanderColors from "../LunarLanderColors.js";
+import type { LunarLanderPreferencesModel } from "../preferences/LunarLanderPreferencesModel.js";
 import { LunarLanderModel } from "./model/LunarLanderModel.js";
 import { LunarLanderKeyboardHelpContent } from "./view/LunarLanderKeyboardHelpContent.js";
 import { LunarLanderScreenView } from "./view/LunarLanderScreenView.js";
 
-type LunarLanderScreenOptions = ScreenOptions & { tandem: Tandem };
+type LunarLanderScreenOptions = ScreenOptions & { tandem: Tandem; preferences: LunarLanderPreferencesModel };
 
 export class LunarLanderScreen extends Screen<LunarLanderModel, LunarLanderScreenView> {
   public constructor(options: LunarLanderScreenOptions) {
     super(
-      () => new LunarLanderModel(),
+      () => new LunarLanderModel(options.preferences),
       (model) => new LunarLanderScreenView(model, { tandem: options.tandem.createTandem("view") }),
       {
         backgroundColorProperty: LunarLanderColors.spaceBackgroundColorProperty,

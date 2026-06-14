@@ -82,5 +82,9 @@
       "lowFuel": "Le carburant est presque épuisé.",
       "outOfFuel": "Panne sèche. Le moteur s'est arrêté."
     }
+  },
+  "preferences": {
+    "title": "Simulation",
+    "showVectors": "Afficher les vecteurs"
   }
 }
